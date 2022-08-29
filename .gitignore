@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 # Personal search
-research/
-raw_data/
+research/*
+raw_data/*
