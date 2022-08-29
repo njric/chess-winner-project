@@ -1,3 +1,20 @@
+# General
+
+## Set up env:
+`make pyenv`
+`make install`
+
+## Gitignore:
+Your data in raw_data/
+Your search notebooks in research/
+
+## Data
+Working with:
+https://database.lichess.org/standard/lichess_db_standard_rated_2015-07.pgn.bz2
+
+
+# Boilerplate README
+
 This is a **boilerplate** repo for a reinforcement learning (RL) project.
 
 This directory provides an example repository structure for RL projects using pytorch. This template provides a generic agent using the [deep Q-learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf) algorithm as well as an agent playing random actions for baseline performance. The DQN architecture is in itw own class and is hot-swappable with other potential architectures. A sample environment using [OpenAi's gym](https://github.com/openai/gym) and a generic control loop is also provided.
