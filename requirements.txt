@@ -1,5 +1,7 @@
-torch
-gym
 chess
-pettingzoo
+gym
 notebook
+numpy
+pandas
+pettingzoo==1.18.1
+torch
