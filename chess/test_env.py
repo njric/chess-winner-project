@@ -1,5 +1,4 @@
 import os
-import random
 from time import sleep
 
 import chess.pgn
@@ -11,34 +10,13 @@ from pettingzoo.classic.chess import chess_utils
 env = chess_v5.env()
 chess_env = env.env.env.env.env
 env.reset()
-
-
-def play_random():
-    rewards = []
-    for agent in env.agent_iter():
-
-        observation, reward, done, info = env.last()
-
-        if done:
-            print("Game done, reward:", reward, "\n\n")
-            rewards.append(reward)
-            print(rewards)
-            env.reset()
-            continue
-            break
-
-        # action = policy(observation, agent)  #  -> π Function
-        action = random.choice(np.flatnonzero(observation["action_mask"]))
-
-        env.step(action)
-
-        print(f"{agent}  plays  random action {action}/4672):")
-        env.render()
-        print("\n")
-        sleep(0.5)
-
-    env.reset()
-
+def score(move: str): # -> score
+    if move == "1-0":
+        return 1
+    elif move == "0-1":
+        return -1
+    else:
+        return 0
 
 def play_pgn(move_list):
 
@@ -46,9 +24,15 @@ def play_pgn(move_list):
 
         observation, reward, done, info = env.last()
 
+        if type(move) is str:
+            print('END')
+            reward = score(move)
+            done = True
+
         if done:
             print("Game done", reward, "\n\n")
-            break
+            env.reset()
+            continue
 
         mirr_move = chess_utils.mirror_move(move) if agent == "player_1" else move
 
@@ -58,7 +42,7 @@ def play_pgn(move_list):
         print(f"{agent}  plays  {move}  (action {action}/4672):")
         env.render()
         print("\n")
-        sleep(1)
+        sleep(0.1)
 
     env.reset()
 
@@ -70,7 +54,7 @@ def move_to_act(move):
 
 
 def load_pgn():
-    dir = os.path.join(os.path.dirname(__file__), "../data")
+    dir = os.path.join(os.path.dirname(__file__), "../raw_data")
     pgn = open(f"{dir}/2022-01.bare.[19999] copy.pgn")
 
     move_list = []
@@ -78,7 +62,8 @@ def load_pgn():
         game = chess.pgn.read_game(pgn)
         for move in game.mainline_moves():
             move_list.append(move)  # .uci())
-            # print(game.end())
+            # print(game.mainline())
+        move_list.append(game.headers["Result"])
 
     print(move_list, "\n")
     return move_list
@@ -88,4 +73,4 @@ if __name__ == "__main__":
     # play_random()
     # quit()
     move_list = load_pgn()
-    play_pgn(move_list)
+    # play_pgn(move_list)
