@@ -8,23 +8,34 @@ import numpy as np
 from pettingzoo.classic import chess_v5
 from pettingzoo.classic.chess import chess_utils
 
+import bz2
+
 
 env = chess_v5.env()
 chess_env = env.env.env.env.env
 env.reset()
 
+def moves_gathering(batch:int):
+
+    data = bz2.open('../raw_data/lichess_db_standard_rated_2022-07.pgn.bz2', mode='rt')
+
+    move_list = []
+
+    for _ in range(batch):
+        game = chess.pgn.read_game(data)
+        for move in game.mainline_move_list():
+            move_list.append(move)
+
+    return move_list
 
 def play_random():
-    state_t = []
-    actions = []
+
     rewards = []
-    state_t_1 = []
+
     for agent in env.agent_iter():
 
         observation, reward, done, info = env.last()
-        state_t.append(observation)
-        rewards.append(reward)
-        state_t_1.append(observation)
+
 
         if done:
             print("Game done, reward:", reward, "\n\n")
@@ -36,7 +47,6 @@ def play_random():
 
         # action = policy(observation, agent)  #  -> π Function
         action = random.choice(np.flatnonzero(observation["action_mask"]))
-        actions.append(action)
         env.step(action)
 
         print(f"{agent}  plays  random action {action}/4672):")
