@@ -5,4 +5,5 @@ notebook
 numpy
 pandas
 pettingzoo==1.18.1
+python-chess
 torch
