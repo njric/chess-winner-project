@@ -1,6 +1,5 @@
 import bz2
 import os
-import re
 
 from pettingzoo.classic import chess_v5
 from pettingzoo.classic.chess import chess_utils
@@ -43,16 +42,14 @@ def load_pgn():
 
         #count games and save pickel at 500
         count += 1
-#       print(count, len(DB))
         if count % 500 == 0:
-            # to_disk(DB)
+            to_disk(DB)
             DB = []
 
         #reset env at start
         env.reset()
 
         result = game.headers["Result"]  #get result from game in case nor readable by pettingzoo
-        print(result)
 
 #       game_list format = [agent, move, result]
 #       game_list ex = [0, Move.from_uci('g1f3'), None]
@@ -79,7 +76,7 @@ def load_pgn():
 
                 if agent == 1:
                     rwd = -1*rwd
-                DB.append((old, act, rwd, agent, new))
+                DB.append((old, act, rwd, new))
 
             if done:  # or ("legal_moves" in info):  # TODO -> check legal_moves necessity
                 # Set last move for losing agent
@@ -89,7 +86,7 @@ def load_pgn():
                 act = dat[agent]["act"]
                 rwd = -1*rwd
 
-                DB.append((old, act, rwd, agent, None))
+                DB.append((old, act, rwd, None))
 
                 dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
 
