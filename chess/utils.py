@@ -1,8 +1,10 @@
-from datetime import datetime
+import glob
 import os
 import pickle
-import glob
+from datetime import datetime
+
 from pettingzoo.classic.chess import chess_utils
+
 
 # Saving and loading batches of generated game data
 def to_disk(obs):
@@ -17,16 +19,14 @@ def to_disk(obs):
 
 
 def list_pickle():
-    dir = os.path.join(os.path.dirname(__file__), f"../raw_data")
+    dir = os.path.join(os.path.dirname(__file__), f"../pickle")
     return glob.glob(dir + "/*.pkl")
 
-def load_pickels(list_pickle):
 
-    infile = open(list_pickle,'rb')
-    data = pickle.load(infile)
-    infile.close()
+def from_disk(file):
+    with open(file, "rb") as f:
+        return pickle.load(f)
 
-    return data
 
 def move_to_act(move):
     x, y = chess_utils.square_to_coord(move.from_square)
