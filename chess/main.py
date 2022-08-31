@@ -1,5 +1,6 @@
 import bz2
 import os
+import re
 
 from pettingzoo.classic import chess_v5
 from pettingzoo.classic.chess import chess_utils
@@ -26,8 +27,10 @@ def score(move: str, agent: int):  # -> score
 def load_pgn():
 
     env = chess_v5.env()
-    pgn = open(os.path.join(os.path.dirname(__file__), "../raw_data/2022-01.bare.[19999].pgn"))
-    # pgn = bz2.open(os.path.join(os.path.dirname(__file__), "../raw_data/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
+    # make dir variable
+    dir = os.path.join(os.path.dirname(__file__))
+    pgn = open(f"{dir}/raw_data/2022-01.bare.[19999].pgn")
+    # pgn = bz2.open(dir, "../raw_data/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
     dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
 
     DB = []
@@ -51,16 +54,16 @@ def load_pgn():
 
             new, rwd, done, info = env.last()
 
+            if type(result) is str:
+                rwd = score(result, agent)
+                done = True
+
             if dat[agent]["obs"] is not None:
 
                 old = dat[agent]["obs"]
                 act = dat[agent]["act"]
 
                 DB.append((old, act, rwd, new))
-
-            if type(result) is str:
-                rwd = score(result, agent)
-                done = True
 
             if done:  # or ("legal_moves" in info):  # TODO -> check legal_moves necessity
                 dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
