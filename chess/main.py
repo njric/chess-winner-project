@@ -29,7 +29,7 @@ def load_pgn():
     env = chess_v5.env()
     # make dir variable
     dir = os.path.join(os.path.dirname(__file__))
-    pgn = open(f"{dir}/raw_data/2022-01.bare.[19999].pgn")
+    pgn = open(f"{dir}/../raw_data/2022-01.bare.[19999].pgn")
     # pgn = bz2.open(dir, "../raw_data/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
     dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
 
@@ -57,6 +57,13 @@ def load_pgn():
             if type(result) is str:
                 rwd = score(result, agent)
                 done = True
+                if (next(result) == 1):
+                    rwd = -1
+                elif (next(result) == -1):
+                    rwd = 1
+                else:
+                    rwd = 0
+
 
             if dat[agent]["obs"] is not None:
 
