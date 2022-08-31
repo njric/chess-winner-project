@@ -1,9 +1,8 @@
 bz2file
-chess
-gym
+chess==1.7.0
 notebook
 numpy
 pandas
 pettingzoo==1.18.1
-python-chess
+python-chess==0.31.4
 torch

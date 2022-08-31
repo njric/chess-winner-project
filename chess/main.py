@@ -1,22 +1,20 @@
+import bz2
 import os
-import random
-from time import sleep
-
-import chess.pgn
-import numpy as np
-import pickle
 
 from pettingzoo.classic import chess_v5
 from pettingzoo.classic.chess import chess_utils
 
-import bz2
+import chess.pgn
+from utils import to_disk
+
 
 def move_to_act(move):
     x, y = chess_utils.square_to_coord(move.from_square)
     panel = chess_utils.get_move_plane(move)
     return (x * 8 + y) * 73 + panel
 
-def score(move: str): # -> score
+
+def score(move: str, agent: int):  # -> score
     if move == "1-0":
         return 1
     elif move == "0-1":
@@ -24,66 +22,56 @@ def score(move: str): # -> score
     else:
         return 0
 
-DB = []
 
-def move_list():
-    dir = os.path.join(os.path.dirname(__file__), "../raw_data")
-    pgn = bz2.open(f"{dir}/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
-
-    moves = []
-    for _ in range(10):
-        game = chess.pgn.read_game(pgn)
-        for move in game.mainline_moves():
-            moves.append(move)  # .uci())
-            # print(game.mainline())
-        moves.append(game.headers["Result"])
-
-    print(moves, "\n")
-    return moves
-
-def load_pgn(moves):
+def load_pgn():
 
     env = chess_v5.env()
-    dat = ({'obs': None, 'act': None},
-           {'obs': None, 'act': None})
+    pgn = open(os.path.join(os.path.dirname(__file__), "../raw_data/2022-01.bare.[19999].pgn"))
+    # pgn = bz2.open(os.path.join(os.path.dirname(__file__), "../raw_data/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
+    dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
 
-    env.reset()
+    DB = []
 
-    for agent, move in zip(env.agent_iter(), moves):
+    count = 0
+    while (game := chess.pgn.read_game(pgn)) is not None:
 
-        agent = int(agent == "player_1")
-        new, reward, done, info = env.last()
+        count += 1
+        print(count, len(DB))
+        if count % 500 == 0:
+            # to_disk(DB)
+            DB = []
 
-        if dat[agent]['obs'] is not None:
+        env.reset()
 
-            old = dat[agent]['obs']
-            act = dat[agent]['act']
+        result = game.headers["Result"]
+        game_list = [[int(i % 2 == 1), move, None] for i, move in enumerate(game.mainline_moves())]
+        game_list[-1][-1] = result
 
-            DB.append((old['observation'], act, reward, new['observation']))
-            # print(old.keys(), act, reward, new.keys())
+        for (agent, move, result) in game_list:
 
-        if type(move) is str:
-            reward = score(move)
-            done = True
-        if done:
-            print("Game done", reward, "\n\n")
-            env.reset()
-            continue
+            new, rwd, done, info = env.last()
 
-        if agent == 1:
-            move = chess_utils.mirror_move(move)
-        action = move_to_act(move)
-        env.step(action)
+            if dat[agent]["obs"] is not None:
+
+                old = dat[agent]["obs"]
+                act = dat[agent]["act"]
+
+                DB.append((old, act, rwd, new))
+
+            if type(result) is str:
+                rwd = score(result, agent)
+                done = True
+
+            if done:  # or ("legal_moves" in info):  # TODO -> check legal_moves necessity
+                dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
+                break
+
+            move = chess_utils.mirror_move(move) if agent == 1 else move
+            action = move_to_act(move)
+            env.step(action)
+
+            dat[agent]["obs"] = new
+            dat[agent]["act"] = action
 
 
-        dat[agent]['obs'] = new
-        dat[agent]['act'] = action
-
-    print("Done")
-
-
-
-moves = move_list()
-load_pgn(moves)
-print(len(DB))
-print(DB[0])
+load_pgn()
