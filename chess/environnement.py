@@ -10,13 +10,14 @@ from utils import *
 import argparse
 
 
-def load_pgn():
+def load_pgn(datafile=None):
 
     env = chess_v5.env()
     # make dir variable
     dir = os.path.join(os.path.dirname(__file__))
     data_dir = os.path.join(os.path.dirname(dir), "raw_data")
-    pgn = open(f"{data_dir}/2019-01.bare.[22119].pgn")
+    pgn = open(f"{data_dir}/{datafile}")
+
     # pgn = bz2.open(f"{data_dir}/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
 
     # Create a buffer to store board state / action by players
@@ -88,4 +89,15 @@ def load_pgn():
             dat[agent]["act"] = action
 
 
-load_pgn()
+# load_pgn()
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--file", action="store", help="Set the preprocessing to val") #création d'un argument
+    return parser.parse_args() #lancement de argparse
+
+args = parse_arguments()
+
+d = vars(args)['file'].split("/")[1]
+
+load_pgn(d)
