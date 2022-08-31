@@ -5,22 +5,7 @@ from pettingzoo.classic import chess_v5
 from pettingzoo.classic.chess import chess_utils
 
 import chess.pgn
-from utils import to_disk
-
-
-def move_to_act(move):
-    x, y = chess_utils.square_to_coord(move.from_square)
-    panel = chess_utils.get_move_plane(move)
-    return (x * 8 + y) * 73 + panel
-
-
-def score(move: str, agent: int):  # -> score
-    if move == "1-0":
-        return 1
-    elif move == "0-1":
-        return -1
-    else:
-        return 0
+from utils import *
 
 
 def load_pgn():
@@ -29,8 +14,8 @@ def load_pgn():
     # make dir variable
     dir = os.path.join(os.path.dirname(__file__))
     data_dir = os.path.join(os.path.dirname(dir), "raw_data")
-    # pgn = open(f"{dir}/raw_data/2022-01.bare.[19999].pgn")
-    pgn = bz2.open(f"{data_dir}/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
+    pgn = open(f"{data_dir}/dataset2.pgn")
+    # pgn = bz2.open(f"{data_dir}/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
 
     # Create a buffer to store board state / action by players
     dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
