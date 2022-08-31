@@ -7,6 +7,8 @@ from pettingzoo.classic.chess import chess_utils
 import chess.pgn
 from utils import *
 
+import argparse
+
 
 def load_pgn():
 
@@ -14,7 +16,7 @@ def load_pgn():
     # make dir variable
     dir = os.path.join(os.path.dirname(__file__))
     data_dir = os.path.join(os.path.dirname(dir), "raw_data")
-    pgn = open(f"{data_dir}/dataset2.pgn")
+    pgn = open(f"{data_dir}/2019-01.bare.[22119].pgn")
     # pgn = bz2.open(f"{data_dir}/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
 
     # Create a buffer to store board state / action by players
@@ -23,6 +25,7 @@ def load_pgn():
     DB = []
 
     count = 0
+    print("-"*10, "Starting", "-"*10)
     while (game := chess.pgn.read_game(pgn)) is not None: #while a game exist, set game variable
 
         #count games and save pickel at 500
