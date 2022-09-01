@@ -10,7 +10,7 @@ from pettingzoo.classic.chess import chess_utils
 def to_disk(obs):
     # Save a batch of generated game data to a file
     pdt = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    dir = os.path.join(os.path.dirname(__file__), f"../pickle/{pdt}_databatch.pkl")
+    dir = os.path.join(os.path.dirname(__file__), f"../data/{pdt}_databatch.pkl")
     with open(dir, "wb") as file:
         pickle.dump(obs, file)
     print(f"Save to pickle @ {pdt}")

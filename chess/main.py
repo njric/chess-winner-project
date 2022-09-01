@@ -1,5 +1,6 @@
 import argparse
 import math
+import os
 
 from agent import Random, StockFish, A2C
 from environnement import Environment, load_pgn
@@ -16,20 +17,21 @@ from typing import List
 # - Implement eval
 # - Implement CFG
 
-def feed(game_files: List):
+def feed(path: str):
     """
     Train a single agent using pickles game files
     """
-
+    path = os.path.join(os.path.dirname(__file__), f"../data/")
+    # game_files = [x for x in ]
     agent = A2C()
 
-    for game_file in game_files:
+    for game_file in utils.list_pickles(path):
         for idx, obs in enumerate(utils.from_disk(game_file)):
             BUF.set(obs)
-            if idx % CFG.batch_size == 0:
+            if idx % CFG.batch_size == 0 and BUF.len() >= CFG.batch_size:
                 agent.learn()
 
-    agent.save(path)
+    # agent.save(path)
 
 
 
@@ -77,6 +79,7 @@ def parse_arguments():
     return parser.parse_args() #lancement de argparse
 
 if __name__ == "__main__":
-    args = parse_arguments()
-    d = vars(args)['file'].split("/")[1]
-    load_pgn(d)
+    #args = parse_arguments()
+    #d = vars(args)['file'].split("/")[1]
+    # load_pgn()
+    feed("")

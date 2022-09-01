@@ -90,6 +90,7 @@ class A2C(Agent):
     def __init__(self):
         super().__init__()
 
+        self.idx = 0
         self.net = A2CNet()
         self.obs = collections.deque(maxlen=CFG.buffer_size)
         self.opt = torch.optim.Adam(self.net.parameters(), lr=CFG.learning_rate)
@@ -113,14 +114,16 @@ class A2C(Agent):
         pol = pol / sum(pol)
         return np.random.choice(range(len(pol)), p=pol)
 
+
     def learn(self):
         """
         Trains the model.
         """
-        old, act, new, rwd = BUF.get()
+        old, act, rwd, new = BUF.get()
         val, pol = self.net(old)
 
         y_pred_pol = torch.log(torch.gather(pol, 1, act).squeeze(1))
+        print(y_pred_pol)
         y_pred_val = val.squeeze(1)
         y_true_val = rwd + CFG.gamma * self.net(new)[0].squeeze(1).detach()
         adv = y_true_val - y_pred_val
@@ -130,8 +133,13 @@ class A2C(Agent):
         # TODO Entropy?
         loss = pol_loss + val_loss #+ CFG.entropy * entropy
 
+        self.idx += 1
+        print(self.idx, loss)
+        print(val[0], pol[0])
+
         self.opt.zero_grad()
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.net.pol.parameters(), 0.001)
         self.opt.step()
 
     def save(self, path: str):
@@ -146,14 +154,3 @@ class A2C(Agent):
         """
         dat = torch.load(path, map_location=torch.device("cpu"))
         self.net.load_state_dict(dat)
-
-CFG.batch_size = 2
-shape = (111, 8, 8)
-BUF.set((3*np.ones(shape), 23, np.ones(shape), 0))
-BUF.set((7*np.ones(shape), 43, np.ones(shape), 0))
-
-agent = A2C()
-agent.learn()
-agent.move(np.ones(shape), "")
-# y = model(tensor_zeros)
-# print(y)
