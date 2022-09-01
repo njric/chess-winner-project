@@ -1,13 +1,8 @@
-import bz2
-import os
-
-from pettingzoo.classic import chess_v5
-from pettingzoo.classic.chess import chess_utils
-
-import chess.pgn
-from utils import *
-
 import argparse
+import chess.pgn
+from pettingzoo.classic import chess_v5
+
+from utils import *
 
 
 def load_pgn(datafile=None):
