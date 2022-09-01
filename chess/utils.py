@@ -10,16 +10,17 @@ from pettingzoo.classic.chess import chess_utils
 def to_disk(obs):
     # Save a batch of generated game data to a file
     pdt = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    dir = os.path.join(os.path.dirname(__file__), f"../pickle/{pdt}_databatch.pkl")
+    dir = os.path.join(os.path.dirname(__file__), f"../data/{pdt}_databatch.pkl")
     with open(dir, "wb") as file:
         pickle.dump(obs, file)
     print(f"Save to pickle @ {pdt}")
 
 
-def list_pickles():
-    # List all pickle files in a directory
-    dir = os.path.join(os.path.dirname(__file__), f"../pickle")
-    return glob.glob(dir + "/*.pkl")
+def list_pickles(dir: str):
+    """
+    List all pickle files in a given directory.
+    """
+    return glob.glob(os.path.join(dir) + "/*.pkl")
 
 
 def from_disk(file):
@@ -33,17 +34,3 @@ def move_to_act(move):
     x, y = chess_utils.square_to_coord(move.from_square)
     panel = chess_utils.get_move_plane(move)
     return (x * 8 + y) * 73 + panel
-
-
-def weight_saver(model, file_name):
-    # Save a model to a file
-    dir = os.path.join(os.path.dirname(__file__), f"../weights/{file_name}.pt")
-    torch.save(model.state_dict(), dir)
-
-
-def weight_loader(model, file_name):
-    # Load a model from a file
-    device = torch.device("cpu")
-    dir = os.path.join(os.path.dirname(__file__), f"../weights/{file_name}.pt")
-    model.load_state_dict(torch.load(dir, map_location=device))
-    return model

@@ -23,6 +23,7 @@ class Configuration:
         self.epsilon = None
         self.random_seed = None
         self.agent_type = None
+        self.convolution_layers = 10
 
     def init(self, agt_type, **kwargs):
         """
