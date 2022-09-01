@@ -1,14 +1,11 @@
-import bz2
-import os
-
-from pettingzoo.classic import chess_v5
-from pettingzoo.classic.chess import chess_utils
-
+import argparse
 import chess.pgn
+from pettingzoo.classic import chess_v5
+
 from utils import *
 
 
-def load_pgn():
+def load_pgn(datafile=None):
 
     env = chess_v5.env()
     # make dir variable
@@ -23,6 +20,7 @@ def load_pgn():
     DB = []
 
     count = 0
+    print("-"*10, "Starting", "-"*10)
     while (game := chess.pgn.read_game(pgn)) is not None: #while a game exist, set game variable
 
         #count games and save pickel at 500

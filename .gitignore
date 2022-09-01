@@ -41,5 +41,6 @@ venv.bak/
 # Add ons
 research/*
 raw_data/*
+pickle/*
 *Zone.Identifier
 *.DS_Store
