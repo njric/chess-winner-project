@@ -6,3 +6,6 @@ pandas
 pettingzoo==1.18.1
 python-chess==0.31.4
 torch
+httplib2==0.15.0
+google-api-python-client==1.7.11
+gcloud
