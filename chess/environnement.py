@@ -1,5 +1,7 @@
 import bz2
 import os
+import random
+import numpy as np
 
 from pettingzoo.classic import chess_v5
 from pettingzoo.classic.chess import chess_utils
@@ -7,7 +9,6 @@ from pettingzoo.classic.chess import chess_utils
 import chess.pgn
 from utils import *
 
-import argparse
 
 
 def load_pgn(datafile=None):
@@ -55,7 +56,7 @@ def load_pgn(datafile=None):
 
             # check if result form gamelist exist = a player quit
             if type(result) is str:
-                rwd = score(result, agent)
+                rwd = chess_utils.result_to_int(result)
                 done = True
 
             if dat[agent]["obs"] is not None:
@@ -69,7 +70,7 @@ def load_pgn(datafile=None):
 
             if done:  # or ("legal_moves" in info):  # TODO -> check legal_moves necessity
                 # Set last move for losing agent
-                agent = (agent + 1 ) % 2
+                agent = 1 - agent
 
                 old = dat[agent]["obs"]
                 act = dat[agent]["act"]
@@ -89,15 +90,27 @@ def load_pgn(datafile=None):
             dat[agent]["act"] = action
 
 
-# load_pgn()
 
-def parse_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", action="store", help="Set the preprocessing to val") #création d'un argument
-    return parser.parse_args() #lancement de argparse
+class Environment:
+    def __init__(self, agents):
+        self.env = chess_v5.env()
+        self.env.reset()
+        self.agents = agents
 
-args = parse_arguments()
+    def play(self, render=False):
+        idx = 0
+        for _ in self.env.agent_iter():
+            new, rwd, done, info = self.env.last()
+            if done:
+                break
+            action = self.agents[idx].move(observation=new, board=self.env.env.env.env.env.board)
+            self.env.step(action)
+            idx = 1 - idx
+            if render:
+                self.env.render(), print('\n')
+        self.env.reset()
+        return self
 
-d = vars(args)['file'].split("/")[1]
 
-load_pgn(d)
+from agent import Random
+Environment((Random(), Random())).play(render=True)
