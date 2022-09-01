@@ -11,9 +11,8 @@ def load_pgn(datafile=None):
     # make dir variable
     dir = os.path.join(os.path.dirname(__file__))
     data_dir = os.path.join(os.path.dirname(dir), "raw_data")
-    pgn = open(os.path.join(os.path.dirname(__file__), f"../data/games.pgn"))
-
-    # pgn = bz2.open(f"{data_dir}/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
+    # pgn = open(f"{dir}/raw_data/2022-01.bare.[19999].pgn")
+    pgn = open(f"{data_dir}/CCRL-4040.[1440796].pgn", mode='rt')
 
     # Create a buffer to store board state / action by players
     dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
