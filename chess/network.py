@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-class Network(nn.Module):
+class A2CNet(nn.Module):
     """
     A2C Neural Network
     """
@@ -17,7 +17,7 @@ class Network(nn.Module):
         self.input_shape = 111
 
         self.net = nn.Sequential(
-            nn.Conv2d(self.input_shape, 512, kernel_size = 2, stride=1, padding=1),
+            nn.Conv2d(111, 512, kernel_size = 2, stride=1, padding=1),
             nn.ReLU(inplace = True),
             nn.MaxPool2d(2),
 
@@ -28,7 +28,7 @@ class Network(nn.Module):
             nn.Conv2d(256, 512, kernel_size = 2, stride=1, padding=1),
             nn.ReLU(inplace = True),
 
-            nn.Flatten(start_dim=0),
+            nn.Flatten(start_dim=1),
 
             nn.Linear(in_features = 4608, out_features = 1024),
             nn.ReLU(inplace = True),
@@ -55,7 +55,8 @@ class Network(nn.Module):
             nn.Linear(in_features = 2048, out_features = 4096),
             nn.ReLU(inplace = True),
 
-            nn.Linear(in_features = 4096, out_features = 4672)
+            nn.Linear(in_features = 4096, out_features = 4672),
+            nn.Softmax()
         )
 
 
@@ -67,17 +68,3 @@ class Network(nn.Module):
         y_val = self.val(y)
         y_pol = self.pol(y)
         return y_val, y_pol
-
-
-
-#Running a test on an empty tensor to see if the shapes in the model are right.
-
-shape = (111, 8, 8)
-test_zeros = np.zeros(shape)
-tensor_zeros = torch.tensor(test_zeros, dtype=torch.float)
-model = Network()
-y = model(tensor_zeros)
-print(y)
-
-
-#TODO: Might need to add a loss and a way of evaluating our model?
