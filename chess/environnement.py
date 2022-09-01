@@ -50,7 +50,7 @@ def load_pgn(datafile=None):
 
             # check if result form gamelist exist = a player quit
             if type(result) is str:
-                rwd = score(result, agent)
+                rwd = chess_utils.result_to_int(result)
                 done = True
 
             if dat[agent]["obs"] is not None:
