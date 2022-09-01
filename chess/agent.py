@@ -122,24 +122,30 @@ class A2C(Agent):
         old, act, rwd, new = BUF.get()
         val, pol = self.net(old)
 
-        y_pred_pol = torch.log(torch.gather(pol, 1, act).squeeze(1))
-        print(y_pred_pol)
+        entropy = (pol.detach() * torch.log(pol.detach())).sum(axis=1)
+
+        y_pred_pol = torch.log(torch.gather(pol, 1, act).squeeze(1) + 1e-6)
         y_pred_val = val.squeeze(1)
         y_true_val = rwd + CFG.gamma * self.net(new)[0].squeeze(1).detach()
         adv = y_true_val - y_pred_val
 
-        val_loss = 0.5 * torch.square(adv).mean()
-        pol_loss = -(adv * y_pred_pol).mean()
-        # TODO Entropy?
-        loss = pol_loss + val_loss #+ CFG.entropy * entropy
+        val_loss = 0.5 * torch.square(adv)
+        pol_loss = -(adv * y_pred_pol)
+        loss = (pol_loss + val_loss).mean() # + 1e-6 * entropy
 
         self.idx += 1
-        print(self.idx, loss)
-        print(val[0], pol[0])
+
+        #print(y_pred_pol)
+        tp = pol[0].detach()
+        tps, _ = torch.sort(tp, descending=True)
+        print(tp.max(), tp.mean(), tp.min())
+        print(tps.numpy()[:5])
+        #print(self.idx, pol_loss, loss)
 
         self.opt.zero_grad()
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.net.pol.parameters(), 0.001)
+        #torch.nn.utils.clip_grad_norm_(self.net.pol.parameters(), 0.001)
+        #torch.nn.utils.clip_grad_norm_(self.net.val.parameters(), 0.001)
         self.opt.step()
 
     def save(self, path: str):

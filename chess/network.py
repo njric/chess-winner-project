@@ -53,7 +53,7 @@ class A2CNet(nn.Module):
             nn.Linear(8192, 8192), nn.ReLU(inplace = True),
             nn.Linear(8192, 4096), nn.ReLU(inplace = True),
             nn.Linear(4096, 4672),
-            nn.Softmax(dim=-1)
+            nn.LogSoftmax(dim=-1),
         )
 
 
@@ -64,4 +64,5 @@ class A2CNet(nn.Module):
         y = self.net(X)
         y_val = self.val(y)
         y_pol = self.pol(y).double() # We need double precision for small probabilities.
-        return y_val, y_pol
+        # torch.clamp(y_pol, min=10e-39, max=1)
+        return y_val, y_pol.exp()
