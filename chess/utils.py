@@ -8,7 +8,7 @@ from pettingzoo.classic.chess import chess_utils
 def to_disk(obs):
 
     pdt = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    dir = os.path.join(os.path.dirname(__file__), f"../raw_data/{pdt}_databatch.pkl")
+    dir = os.path.join(os.path.dirname(__file__), f"../pickle/{pdt}_databatch.pkl")
 
     with open(dir, "wb") as file:
         pickle.dump(obs, file)

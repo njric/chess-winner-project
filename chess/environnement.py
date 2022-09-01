@@ -15,7 +15,7 @@ def load_pgn():
     dir = os.path.join(os.path.dirname(__file__))
     data_dir = os.path.join(os.path.dirname(dir), "raw_data")
     # pgn = open(f"{dir}/raw_data/2022-01.bare.[19999].pgn")
-    pgn = open(f"{data_dir}/CCRL-4040.[1440796].pgn", mode='rt')
+    pgn = open(f"{data_dir}/2020-04.bare.[7622].pgn")
 
     # Create a buffer to store board state / action by players
     dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
@@ -75,21 +75,7 @@ def load_pgn():
                 DB.append((old, act, rwd, None))
 
                 dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
-                if (result == "0-1"):
-                    try:
-                        if agent== 1:
-                            assert(DB[-1][-3]==1)
-                            assert(DB[-2][-3]==-1)
-                        else:
-                            assert(DB[-1][-3]==-1)
-                            assert(DB[-2][-3]==1)
-                    except:
-                        print(agent)
-                        print('⧵n')
-                        print(DB[-1][2:4])
-                        print('⧵n')
-                        print(DB[-2][2:4])
-                        print('⧵n')
+
                 break
 
             move = chess_utils.mirror_move(move) if agent == 1 else move #mirror move for black
