@@ -95,4 +95,29 @@ args = parse_arguments()
 
 d = vars(args)['file'].split("/")[1]
 
+
+class Environment:
+    def __init__(self, agents):
+        self.env = chess_v5.env()
+        self.env.reset()
+        self.agents = agents
+
+    def play(self, render=False):
+        idx = 0
+        for _ in self.env.agent_iter():
+            new, rwd, done, info = self.env.last()
+            if done:
+                break
+            action = self.agents[idx].move(observation=new, board=self.env.env.env.env.env.board)
+            self.env.step(action)
+            idx = 1 - idx
+            if render:
+                self.env.render(), print('\n')
+        self.env.reset()
+        return self
+
+
+from agent import Random
+Environment((Random(), Random())).play(render=True)
+
 load_pgn(d)
