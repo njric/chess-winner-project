@@ -47,3 +47,11 @@ def weight_loader(model, file_name):
     dir = os.path.join(os.path.dirname(__file__), f"../weights/{file_name}.pt")
     model.load_state_dict(torch.load(dir, map_location=device))
     return model
+
+def score(move: str, agent: int):  # -> score
+    if move == "1-0":
+        return 1
+    elif move == "0-1":
+        return -1
+    else:
+        return 0

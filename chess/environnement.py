@@ -12,7 +12,7 @@ def load_pgn(datafile=None):
     dir = os.path.join(os.path.dirname(__file__))
     data_dir = os.path.join(os.path.dirname(dir), "raw_data")
     # pgn = open(f"{dir}/raw_data/2022-01.bare.[19999].pgn")
-    pgn = open(f"{data_dir}/2020-09.bare.[6918].pgn")
+    pgn = open(f"{data_dir}/{datafile}")
 
     # Create a buffer to store board state / action by players
     dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
@@ -101,13 +101,20 @@ class Environment:
         self.env = chess_v5.env()
         self.env.reset()
         self.agents = agents
+        self.results = 0
 
     def play(self, render=False):
         idx = 0
+        # idx is the player who is currently moving
         for _ in self.env.agent_iter():
             new, rwd, done, info = self.env.last()
             if done:
+                if idx == 0:
+                    self.results = rwd
+                else:
+                    self.results = -rwd
                 break
+
             action = self.agents[idx].move(observation=new, board=self.env.env.env.env.env.board)
             self.env.step(action)
             idx = 1 - idx
@@ -120,4 +127,4 @@ class Environment:
 from agent import Random
 Environment((Random(), Random())).play(render=True)
 
-load_pgn(d)
+load_pgn()
