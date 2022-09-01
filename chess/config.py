@@ -15,15 +15,15 @@ class Configuration:
         """
         Declare types but do not instantiate anything
         """
-        self.learning_rate = 0.0001
+        self.learning_rate = 0.001
         self.gamma = 0.98
         self.entropy = 0.01
         self.buffer_size = 100000
-        self.batch_size = 128
+        self.batch_size = 64
         self.epsilon = None
         self.random_seed = None
         self.agent_type = None
-        self.convolution_layers = 10
+        self.convolution_layers = 4
 
     def init(self, agt_type, **kwargs):
         """
