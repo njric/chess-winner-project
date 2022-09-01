@@ -1,9 +1,13 @@
 import argparse
 import math
 
-from agent import Random, StockFish
+from agent import Random, StockFish, A2C
 from environnement import Environment, load_pgn
-from utils import *
+import utils
+from buffer import BUF
+from config import CFG
+
+from typing import List
 
 
 # TODO:
@@ -12,24 +16,27 @@ from utils import *
 # - Implement eval
 # - Implement CFG
 
-def offline():
-    # raise NotImplementedError
-    agent = 'Agent()'
+def feed(game_files: List):
+    """
+    Train a single agent using pickles game files
+    """
 
-    for idx, file in enumerate(list_pickles()):
-        print(file)
+    agent = A2C()
 
-        for obs in from_disk(file):
-            agent.train(obs)
+    for game_file in game_files:
+        for idx, obs in enumerate(utils.from_disk(game_file)):
+            BUF.set(obs)
+            if idx % CFG.batch_size == 0:
+                agent.learn()
 
-        if idx % 10 == 0 and idx != 0:
-            eval(agent)
-
-    weight_saver(agent.model, f"model_{eval_idx}")
+    agent.save(path)
 
 
 
 def play():
+    """
+    Play chess using two agents.
+    """
     # raise NotImplementedError
     env = Environment(('agt0', 'agt1'))
 

@@ -134,6 +134,18 @@ class A2C(Agent):
         loss.backward()
         self.opt.step()
 
+    def save(self, path: str):
+        """
+        Save the agent's model to disk.
+        """
+        torch.save(self.net.state_dict(), path)
+
+    def load(self, path: str):
+        """
+        Load the agent's weights from disk.
+        """
+        dat = torch.load(path, map_location=torch.device("cpu"))
+        self.net.load_state_dict(dat)
 
 CFG.batch_size = 2
 shape = (111, 8, 8)
