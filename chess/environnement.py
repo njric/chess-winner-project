@@ -12,7 +12,7 @@ def load_pgn(datafile=None):
     dir = os.path.join(os.path.dirname(__file__))
     data_dir = os.path.join(os.path.dirname(dir), "raw_data")
     # pgn = open(f"{dir}/raw_data/2022-01.bare.[19999].pgn")
-    pgn = open(f"{data_dir}/2020-04.bare.[7622].pgn")
+    pgn = open(f"{data_dir}/2020-09.bare.[6918].pgn")
 
     # Create a buffer to store board state / action by players
     dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
@@ -82,6 +82,5 @@ def load_pgn(datafile=None):
 
             dat[agent]["obs"] = new
             dat[agent]["act"] = action
-
 
 load_pgn()
