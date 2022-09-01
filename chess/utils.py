@@ -19,7 +19,6 @@ def to_disk(obs):
 def list_pickles():
     # List all pickle files in a directory
     dir = os.path.join(os.path.dirname(__file__), f"../pickle")
-    print(glob.glob(dir + "/*.pkl"))
     return glob.glob(dir + "/*.pkl")
 
 
@@ -48,5 +47,3 @@ def weight_loader(model, file_name):
     dir = os.path.join(os.path.dirname(__file__), f"../weights/{file_name}.pt")
     model.load_state_dict(torch.load(dir, map_location=device))
     return model
-
-list_pickles()

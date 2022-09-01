@@ -44,6 +44,4 @@ f = vars(args)['file']
 pickle_list = list_pickles()
 
 for p in pickle_list:
-    f = p.split("/")[-1]
-
-upload_blob(BUCKET, f, "pickles/")
+    upload_blob(BUCKET, p, "pickles/")
