@@ -12,6 +12,8 @@ from utils import *
 # - Implement eval
 # - Implement CFG
 
+eval_idx = 0
+
 def offline():
     # raise NotImplementedError
     agent = 'Agent()'
@@ -45,23 +47,23 @@ def play():
     weight_saver('agt0.model', f"model_{eval_idx}")
 
 
-
 def eval(agent, n_eval=5):
     # raise NotImplementedError
     env = Environment((agent, StockFish()))
-
+    results = []
     agent.model.eval()  # Set NN model to evaluation mode.
+    eval_idx += 1
 
     for _ in range(n_eval):
-        env.play()
+        env.play(eval_state=True)
+        results.append(env.play_outcome)
 
-    results = list('eval game outcomes') # -> white player reward
-    print(f"{eval_idx}: Wins {results.count(1)}, Draws {results.count(0)}, Losses {results.count(-1)} \n")
-    print(f"Since init: total wins {tot_win} & total draws {tot_draw}")
+    print(f"Results are:")
+    # results = list('eval game outcomes') # -> white player reward
+    # print(f"{eval_idx}: Wins {results.count(1)}, Draws {results.count(0)}, Losses {results.count(-1)} \n")
+    # print(f"Since init: total wins {tot_win} & total draws {tot_draw}")
 
     agent.model.train()  # Set NN model back to training mode
-
-
 
 
 def parse_arguments():

@@ -102,12 +102,20 @@ class Environment:
         self.env.reset()
         self.agents = agents
 
-    def play(self, render=False):
+    def play(self, render=False, eval_state=False):
         idx = 0
+        self.play_outcome = 0
         for _ in self.env.agent_iter():
             new, rwd, done, info = self.env.last()
+
             if done:
+                if eval_state:
+                    if idx == 0:
+                        self.play_outcome = rwd
+                    else:
+                        self.play_outcome = (-1 * rwd)
                 break
+
             action = self.agents[idx].move(observation=new, board=self.env.env.env.env.env.board)
             self.env.step(action)
             idx = 1 - idx
