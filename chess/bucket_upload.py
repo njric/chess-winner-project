@@ -44,9 +44,5 @@ f = vars(args)['file']
 pickle_list = list_pickles()
 
 for p in pickle_list:
-<<<<<<< HEAD
     name = p.split("/")[-1]
-=======
-    name = p.split('/')[-1]
->>>>>>> 16b33af (eval function done)
     upload_blob(BUCKET, p, name)
