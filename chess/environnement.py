@@ -11,8 +11,9 @@ def load_pgn(datafile=None):
     # make dir variable
     dir = os.path.join(os.path.dirname(__file__))
     data_dir = os.path.join(os.path.dirname(dir), "raw_data")
-    # pgn = open(f"{dir}/raw_data/2022-01.bare.[19999].pgn")
-    pgn = open(f"{data_dir}/{datafile}")
+    pgn = open(os.path.join(os.path.dirname(__file__), f"../data/games.pgn"))
+
+    # pgn = bz2.open(f"{data_dir}/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
 
     # Create a buffer to store board state / action by players
     dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
@@ -49,7 +50,7 @@ def load_pgn(datafile=None):
 
             # check if result form gamelist exist = a player quit
             if type(result) is str:
-                rwd = score(result, agent)
+                rwd = chess_utils.result_to_int(result)
                 done = True
 
 
@@ -84,17 +85,10 @@ def load_pgn(datafile=None):
             dat[agent]["act"] = action
 
 
-# load_pgn()
-
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", action="store", help="Set the preprocessing to val") #création d'un argument
     return parser.parse_args() #lancement de argparse
-
-args = parse_arguments()
-
-d = vars(args)['file'].split("/")[1]
-
 
 class Environment:
     def __init__(self, agents):
@@ -121,6 +115,7 @@ class Environment:
             if render:
                 self.env.render(), print('\n')
         self.env.reset()
+<<<<<<< HEAD
         return self
 
 

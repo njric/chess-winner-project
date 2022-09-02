@@ -10,8 +10,9 @@ import chess.engine
 import numpy as np
 import torch
 
-from network import Network
-from parameters import params
+from network import A2CNet
+from config import CFG
+from buffer import BUF
 from utils import move_to_act
 
 
@@ -56,7 +57,7 @@ class StockFish(Agent):
         print("Stockfish stop \n")
 
     def move(self, observation, board):
-        if board.turn == False:
+        if board.turn is False:
             board = board.mirror()
 
         move = self.engine.engine.play(
@@ -79,7 +80,7 @@ class Random(Agent):
         return random.choice(np.flatnonzero(observation["action_mask"]))
 
 
-class ChessAgent(Agent):
+class A2C(Agent):
     """
     Main agent.
     Take observations from a tuple.
@@ -89,85 +90,73 @@ class ChessAgent(Agent):
     def __init__(self):
         super().__init__()
 
-        #TODO Needs finishing
+        self.idx = 0
+        self.net = A2CNet()
+        self.obs = collections.deque(maxlen=CFG.buffer_size)
+        self.opt = torch.optim.Adam(self.net.parameters(), lr=CFG.learning_rate)
 
-        self.net = Network()
-
-        #TODO ?? not sure why we're using a deque instead of a list?...
-        self.obs = collections.deque(maxlen = params.buffer_size)
-
-        self.opt = torch.optim.Adam(self.net.parameters(), lr = params.learning_rate)
-
-
-
-    def feed_er():
+    def step(self):
         """
         Experience replay before feeding our data to the model.
         """
-        #TODO Needs doing
+        # TODO Needs doing
         pass
 
-
-    def move():
+    def move(self, obs, _):
         """
         Next action selection.
         """
-        #TODO Needs doing
-        pass
+        # TODO Remove when we get real masks
+        mask = np.array([random.randint(0, 1) for _ in range(4672)])
+        obs = torch.tensor(obs).float().unsqueeze(0)
+        _, pol = self.net(obs)
+        pol = pol.squeeze(0).detach().numpy() * mask
+        pol = pol / sum(pol)
+        return np.random.choice(range(len(pol)), p=pol)
 
 
     def learn(self):
         """
         Trains the model.
         """
+        old, act, rwd, new = BUF.get()
+        val, pol = self.net(old)
 
-        #Gets a training batch from the feed function
-        training_batch = random.sample(self.obs, params.batch_size)
+        entropy = (pol.detach() * torch.log(pol.detach())).sum(axis=1)
 
-        #Init. the log_probs, values & rewards of the batch to compute the loss
-        log_probs = []
-        values = []
-        rewards = []
-        total_entropy = 0
+        y_pred_pol = torch.log(torch.gather(pol, 1, act).squeeze(1) + 1e-6)
+        y_pred_val = val.squeeze(1)
+        y_true_val = rwd + CFG.gamma * self.net(new)[0].squeeze(1).detach()
+        adv = y_true_val - y_pred_val
 
-        #Gets state_t, action_t, reward_t+1, state_t+1
-        for i, (old, act, rwd, new) in enumerate(zip(*training_batch)):
-            with torch.no_grad():
-                #Gets the output from the network: one value and a policy list
-                value, policy_list = self.net(old)
-                values.append(value)
+        val_loss = 0.5 * torch.square(adv)
+        pol_loss = -(adv * y_pred_pol)
+        loss = (pol_loss + val_loss).mean() # + 1e-6 * entropy
 
-                #TODO Double check if the first action is 0 or 1 (right index?)
-                log_prob = torch.log(policy_list[act - 1])
-                log_probs.append(log_prob)
+        self.idx += 1
 
-                rewards.append(rwd)
+        #print(y_pred_pol)
+        tp = pol[0].detach()
+        tps, _ = torch.sort(tp, descending=True)
+        print(tp.max(), tp.mean(), tp.min())
+        print(tps.numpy()[:5])
+        #print(self.idx, pol_loss, loss)
 
-                #Computes the entropy
-                entropy = -np.sum(act * np.log(act))
-                total_entropy += entropy
-
-        #Computes the Qs
-        Qs = np.zeros_like(values)
-        for t in reversed(range(len(rewards))):
-            Q = rewards[t] - params.gamma * Q
-            Qs[t] = Q
-
-        #Computes the advantage
-        advantages = Qs - values
-
-        #Value loss
-        value_loss = 0.5 * (advantages ** 2).mean()
-
-        #Policy loss
-        policy_loss = -(advantages * log_probs).mean()
-
-        #Total loss
-        total_loss = policy_loss + value_loss + params.entropy_weight * entropy
-
-
-        #Backward propagation to update the weights
-        #TODO must have an issue with the type of total loss...
         self.opt.zero_grad()
-        total_loss.backward()
+        loss.backward()
+        #torch.nn.utils.clip_grad_norm_(self.net.pol.parameters(), 0.001)
+        #torch.nn.utils.clip_grad_norm_(self.net.val.parameters(), 0.001)
         self.opt.step()
+
+    def save(self, path: str):
+        """
+        Save the agent's model to disk.
+        """
+        torch.save(self.net.state_dict(), path)
+
+    def load(self, path: str):
+        """
+        Load the agent's weights from disk.
+        """
+        dat = torch.load(path, map_location=torch.device("cpu"))
+        self.net.load_state_dict(dat)
