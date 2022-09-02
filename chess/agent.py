@@ -223,8 +223,7 @@ class DQNAgent(Agent):
         loss = torch.square(exp - out)
         self.loss_tracking.append(loss.sum().detach().item())
 
-        print(f"Iteration # {self.idx}")
-        print(f'Loss: {loss.sum().detach().item()}')
+        print(f'Iteration #{self.idx}: {loss.sum().detach().item()}')
 
         #Backward prop
         self.opt.zero_grad()
