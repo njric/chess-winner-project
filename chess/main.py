@@ -27,13 +27,16 @@ def feed(path: str):
     # game_files = [x for x in ]
     agent = DQNAgent()
 
+    tracker = 1
     for game_file in utils.list_pickles(pkl_path):
+        print(f'Starting learning phase #{tracker}')
         for idx, obs in enumerate(utils.from_disk(game_file)):
             BUF.set(obs)
             if idx % CFG.batch_size == 0 and BUF.len() >= CFG.batch_size:
                 agent.learn()
 
         agent.save(wgt_path)
+        tracker += 1
 
 
 

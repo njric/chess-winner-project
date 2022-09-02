@@ -13,7 +13,7 @@ import torch
 from network import A2CNet, DQN
 from config import CFG
 from buffer import BUF
-from utils import move_to_act
+from utils import move_to_act, to_disk
 
 
 class Agent:
@@ -173,6 +173,7 @@ class DQNAgent(Agent):
         super().__init__()
 
         self.idx = 0
+        self.loss_tracking = []
         self.net = DQN()
         self.obs = collections.deque(maxlen=CFG.buffer_size)
         self.opt = torch.optim.Adam(self.net.parameters(), lr=CFG.learning_rate)
@@ -208,18 +209,22 @@ class DQNAgent(Agent):
 
         self.idx += 1
 
-        old, act, rwd, new = BUF.get()
+        old, act, rwd, new , terminal = BUF.get()
 
         #Get "y_pred"
         out = torch.gather(self.net(old), 1, act).squeeze(1)
 
-        #Get "target"
+        #Get "target", added terminal in order to get the right exp when new = None
         with torch.no_grad():
             index = torch.argmax(self.tgt(new), 1).unsqueeze(1)
-            exp = rwd + CFG.gamma * torch.gather(self.tgt(new), 1, index).squeeze(1)
+            exp = rwd + (CFG.gamma * torch.gather(self.tgt(new), 1, index).squeeze(1) * terminal)
 
         #Compute loss
         loss = torch.square(exp - out)
+        self.loss_tracking.append(loss.sum().detach().item())
+
+        print(f"Iteration # {self.idx}")
+        print(f'Loss: {loss.sum().detach().item()}')
 
         #Backward prop
         self.opt.zero_grad()
@@ -238,6 +243,7 @@ class DQNAgent(Agent):
         Save the agent's model to disk.
         """
         torch.save(self.net.state_dict(), path)
+        to_disk(self.loss_tracking)
 
     def load(self, path: str):
         """
