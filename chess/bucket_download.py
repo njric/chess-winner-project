@@ -34,8 +34,6 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
     #         source_blob_name, bucket_name, destination_file_name
     #     )
 
-    )
-
 
 def get_pickle_name():
 
