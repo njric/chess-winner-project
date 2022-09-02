@@ -2,11 +2,12 @@ from gcloud import storage
 # from oauth2client.service_account import ServiceAccountCredentials
 import os
 import argparse
+import parameters
 
 from utils import list_pickles
 
-PROJECT = os.environ.get("PROJECT")
-BUCKET = os.environ.get("BUCKET")
+PROJECT = parameters.PROJECT
+BUCKET = parameters.BUCKET
 
 
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
@@ -29,19 +30,8 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     )
 
 
-def parse_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", action="store", help="Set the preprocessing to val") #création d'un argument
-    return parser.parse_args() #lancement de argparse
-
-args = parse_arguments()
-
-# f = vars(args)['file'].split("/")[1]
-f = vars(args)['file']
-
-
-
-pickle_list = list_pickles()
+dir = os.path.join(os.path.dirname(__file__), f"../pickle")
+pickle_list = list_pickles(dir)
 
 for p in pickle_list:
     name = p.split("/")[-1]

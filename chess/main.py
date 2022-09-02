@@ -4,7 +4,7 @@ import os
 
 from agent import Random, StockFish, A2C
 from environnement import Environment, load_pgn
-import utils
+from utils import *
 from buffer import BUF
 from config import CFG
 
@@ -71,6 +71,15 @@ def eval(agent, n_eval=5):
     agent.model.train()  # Set NN model back to training mode
 
 
+def baseline():
+
+    list_pickles = list_pickles()
+    for pickle in list_pickles:
+        data = from_disk(pickle)
+        print(data)
+        exit()
+
+    pass
 
 
 def parse_arguments():
