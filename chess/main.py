@@ -137,8 +137,10 @@ def get_pickle_name():
 
 if __name__ == "__main__":
 
-    PROJECT = os.environ.get("PROJECT")
-    BUCKET = os.environ.get("BUCKET")
+    PROJECT="sunny-ship-356009"
+    BUCKET="my-chess-bucket"
+
+
     pickle_names = get_pickle_name()[1:]
     pkl_done = []
     tracker = 0
