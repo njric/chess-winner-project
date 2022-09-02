@@ -241,7 +241,7 @@ class DQNAgent(Agent):
         """
         Save the agent's model to disk.
         """
-        torch.save(self.net.state_dict(), path)
+        torch.save(self.net.state_dict(), f"{path}saved_model.pt")
         to_disk(self.loss_tracking, 'loss')
 
     def load(self, path: str):
