@@ -10,7 +10,7 @@ from agent import A2C, DQNAgent, Random, StockFish
 from buffer import BUF
 from config import CFG
 from environnement import Environment, load_pgn
-from utils import from_disk
+from utils import from_disk, to_disk
 
 # TODO:
 # - Implement train from pkl
@@ -149,6 +149,8 @@ if __name__ == "__main__":
         print(f'Starting download {tracker}')
         download_blob(BUCKET, p, f'./pickle/my_unique_pickle.pkl')
         pkl_done.append(p)
+        with open("done_list.txt", mode= "w") as f:
+            f.write(pkl_done)
         print(f'Starting learning phase #{tracker}')
         feed_vm()
         tracker += 1

@@ -7,10 +7,10 @@ import torch
 from pettingzoo.classic.chess import chess_utils
 
 
-def to_disk(obs):
+def to_disk(obs, name: str = 'pickle'):
     # Save a batch of generated game data to a file
     pdt = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    dir = os.path.join(os.path.dirname(__file__), f"../data/{pdt}_loss.pkl")
+    dir = os.path.join(os.path.dirname(__file__), f"../data/{pdt}_{name}.pkl")
     with open(dir, "wb") as file:
         pickle.dump(obs, file)
     #print(f"Save to pickle @ {pdt}")
