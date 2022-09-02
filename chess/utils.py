@@ -34,6 +34,10 @@ def move_to_act(move):
     # Return a pettingzoo-style action from a chess move
     x, y = chess_utils.square_to_coord(move.from_square)
     panel = chess_utils.get_move_plane(move)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9f4bc7f (test function done)
     return (x * 8 + y) * 73 + panel
 <<<<<<< HEAD
 =======
