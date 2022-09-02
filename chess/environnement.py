@@ -115,7 +115,6 @@ class Environment:
             if render:
                 self.env.render(), print('\n')
         self.env.reset()
-<<<<<<< HEAD
         return self
 
 
