@@ -2,7 +2,7 @@ import argparse
 import math
 import os
 
-from agent import Random, StockFish, A2C
+from agent import Random, StockFish, A2C, DQNAgent
 from environnement import Environment, load_pgn
 import utils
 from buffer import BUF
@@ -21,17 +21,19 @@ def feed(path: str):
     """
     Train a single agent using pickles game files
     """
-    path = os.path.join(os.path.dirname(__file__), f"../data/")
-    # game_files = [x for x in ]
-    agent = A2C()
+    pkl_path = os.path.join(path, f"../pickle/")
+    wgt_path = os.path.join(path, f"../weights/")
 
-    for game_file in utils.list_pickles(path):
+    # game_files = [x for x in ]
+    agent = DQNAgent()
+
+    for game_file in utils.list_pickles(pkl_path):
         for idx, obs in enumerate(utils.from_disk(game_file)):
             BUF.set(obs)
             if idx % CFG.batch_size == 0 and BUF.len() >= CFG.batch_size:
                 agent.learn()
 
-    # agent.save(path)
+        agent.save(wgt_path)
 
 
 
@@ -39,7 +41,7 @@ def play():
     """
     Play chess using two agents.
     """
-    # raise NotImplementedError
+    raise NotImplementedError
     env = Environment(('agt0', 'agt1'))
 
     'agt0'.model = weight_loader('agt0'.model, 'model_#')
@@ -82,4 +84,5 @@ if __name__ == "__main__":
     #args = parse_arguments()
     #d = vars(args)['file'].split("/")[1]
     # load_pgn()
-    feed("")
+    path = os.path.dirname(__file__)
+    feed(path)
