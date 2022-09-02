@@ -1,4 +1,5 @@
 import argparse
+from ast import arg
 import chess.pgn
 from pettingzoo.classic import chess_v5
 
@@ -11,7 +12,7 @@ def load_pgn(datafile=None):
     # make dir variable
     dir = os.path.join(os.path.dirname(__file__))
     data_dir = os.path.join(os.path.dirname(dir), "raw_data")
-    pgn = open(os.path.join(os.path.dirname(__file__), f"../data/games.pgn"))
+    pgn = open(os.path.join(f"{data_dir}/{datafile}"))
 
     # pgn = bz2.open(f"{data_dir}/lichess_db_standard_rated_2022-07.pgn.bz2", mode='rt')
 
@@ -100,6 +101,10 @@ class Environment:
         for _ in self.env.agent_iter():
             new, rwd, done, info = self.env.last()
             if done:
+                if idx == 0:
+                    self.results = rwd
+                else:
+                    self.results = -rwd
                 break
             action = self.agents[idx].move(observation=new, board=self.env.env.env.env.env.board)
             self.env.step(action)
@@ -108,3 +113,10 @@ class Environment:
                 self.env.render(), print('\n')
         self.env.reset()
         return self
+
+
+if __name__ == "main":
+    args = parse_arguments()
+    source_pgn = vars(args)['file'].split("/")[1]
+
+    load_pgn(source_pgn)

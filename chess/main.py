@@ -1,4 +1,5 @@
 import argparse
+from asyncore import dispatcher_with_send
 import math
 import os
 
@@ -16,6 +17,10 @@ from typing import List
 # - Implement stats
 # - Implement eval
 # - Implement CFG
+
+tot_win = 0
+tot_draw = 0
+eval_idx = 0
 
 def feed(path: str):
     """
@@ -50,6 +55,7 @@ def play():
 
         if n % 500 == 0 and n != 0:
             eval('agt0')
+            #ADD SAVE MODEL FUNCTION
 
     weight_saver('agt0.model', f"model_{eval_idx}")
 
@@ -58,19 +64,28 @@ def play():
 def eval(agent, n_eval=5):
     # raise NotImplementedError
     env = Environment((agent, StockFish()))
+    eval_idx +=1
+    agent.model.eval()  # Set NN model to evaluation mode.
+    results = []
 
     agent.model.eval()  # Set NN model to evaluation mode.
 
     for _ in range(n_eval):
         env.play()
 
+    wins = results.count(1)
+    draws = results.count(0)
+    losses = results.count(-1)
+    outcome = (wins, draws, losses)
+    tot_win += wins
+    tot_draws += draws
+
     results = list('eval game outcomes') # -> white player reward
     print(f"{eval_idx}: Wins {results.count(1)}, Draws {results.count(0)}, Losses {results.count(-1)} \n")
     print(f"Since init: total wins {tot_win} & total draws {tot_draw}")
 
     agent.model.train()  # Set NN model back to training mode
-
-
+    return outcome
 
 
 def parse_arguments():

@@ -40,8 +40,8 @@ args = parse_arguments()
 f = vars(args)['file']
 
 
-
-pickle_list = list_pickles()
+dir = os.path.join(os.path.dirname(__file__), f"../pickle")
+pickle_list = list_pickles(dir)
 
 for p in pickle_list:
     name = p.split("/")[-1]
