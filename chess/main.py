@@ -34,7 +34,6 @@ def feed(path: str):
     # agent.save(path)
 
 
-
 def play():
     """
     Play chess using two agents.

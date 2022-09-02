@@ -1,3 +1,4 @@
+from copyreg import pickle
 from google.cloud import storage
 from utils import from_disk
 import parameters
@@ -5,7 +6,6 @@ import parameters
 PROJECT = parameters.PROJECT
 BUCKET = parameters.BUCKET
 
-pickle_names = []
 
 def download_blob(bucket_name, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
@@ -37,6 +37,7 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 
 def get_pickle_name():
 
+    pickle_names = []
     with open("bucket_pickle_list.txt", mode= "r") as f:
         d_list = f.readlines()
 
@@ -48,11 +49,17 @@ def get_pickle_name():
     return pickle_names
 
 
-pickle_names = get_pickle_name()[1:]
+# pickle_names = get_pickle_name()[1:]
+done_pickles = []
+
+pickle_names = ["2022-09-01_13-11-21_databatch.pkl", "2022-09-01_13-11-21_databatch2.pkl"]
 
 for p in pickle_names:
-    download_blob(BUCKET, p, f'./pickle/my_unique_pikcle.pkl')
+    download_blob(BUCKET, p, 'my_unique_pikcle.pkl')
+    done_pickles.append(p)
+    print(from_disk("/home/njric/code/njric/chess-winner-project/my_unique_pikcle.pkl"))
 
+print(done_pickles)
 
 # download_blob(BUCKET, "2022-09-01_13-11-21_databatch.pkl", "./myblobdir/myblobname.pkl")
 
