@@ -88,9 +88,14 @@ class BaselineAgent(Agent):
 
     def __init__(self):
         super().__init__()
+        # TODO Mechanism to load move DB
+        self.DB = None
 
     def move(self, observation, board):
-        pass
+        if (env := " ".join(board.fen().split(" ")[:4])) not in self.DB:
+            return random.choice(np.flatnonzero(observation["action_mask"]))
+        prb = self.DB[env].values() / sum(self.DB[env].values())
+        return np.random.choice(self.DB[env].keys(), p=prb)
 
 
 class A2C(Agent):
