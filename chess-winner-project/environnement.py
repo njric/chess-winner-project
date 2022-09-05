@@ -100,21 +100,20 @@ class Environment:
         self.results = 0
 
     def play(self, render=False):
-        idx = 0
+        self.idx = 0
         # idx is the player who is currently moving
         for _ in self.env.agent_iter():
             new, rwd, done, info = self.env.last()
             if done:
-                if idx == 0:
+                if self.idx == 0:
                     self.results = rwd
                 else:
                     self.results = -rwd
                 break
 
-            action = self.agents[idx].move(
-                observation=new, board=self.env.env.env.env.env.board)
+            action = self.agents[self.idx].move(observation=new, board=self.env.env.env.env.env.board)
             self.env.step(action)
-            idx = 1 - idx
+            self.idx = 1 - self.idx
             if render:
                 self.env.render(), print('\n')
         self.env.reset()

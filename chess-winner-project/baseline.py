@@ -36,6 +36,7 @@ def load_baseline(datafile=None):
             board.push(move)
 
     utils.to_disk(DB)
+    print(DB)
 
 
 if __name__ == "__main__":
