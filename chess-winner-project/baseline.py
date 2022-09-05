@@ -1,6 +1,8 @@
+# from ast import main
 import chess
 import chess.pgn
 import pettingzoo.classic.chess.chess_utils as chess_utils
+from main import parse_arguments
 
 import utils
 import os
@@ -8,7 +10,7 @@ import os
 
 def load_baseline(datafile=None):
 
-    pgn = open(os.path.join(os.path.dirname(__file__), f"../data/games.pgn"))
+    pgn = open(os.path.join(os.path.dirname(__file__), f"../raw_data/{datafile}"))
 
     DB = {}
 
@@ -36,4 +38,7 @@ def load_baseline(datafile=None):
     utils.to_disk(DB)
 
 
-load_baseline()
+if __name__ == "__main__":
+    args = parse_arguments()
+    d = vars(args)['file'].split("/")[1]
+    load_baseline(d)
