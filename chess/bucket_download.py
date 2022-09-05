@@ -49,10 +49,8 @@ def get_pickle_name():
     return pickle_names
 
 
-# pickle_names = get_pickle_name()[1:]
+pickle_names = get_pickle_name()[1:]
 done_pickles = []
-
-pickle_names = ["2022-09-01_13-11-21_databatch.pkl", "2022-09-01_13-11-21_databatch2.pkl"]
 
 for p in pickle_names:
     download_blob(BUCKET, p, 'my_unique_pikcle.pkl')
@@ -60,9 +58,3 @@ for p in pickle_names:
     print(from_disk("/home/njric/code/njric/chess-winner-project/my_unique_pikcle.pkl"))
 
 print(done_pickles)
-
-# download_blob(BUCKET, "2022-09-01_13-11-21_databatch.pkl", "./myblobdir/myblobname.pkl")
-
-# print(type(dl_pickle))
-
-# print(from_disk("/home/njric/code/njric/chess-winner-project/myblobdir/myblobname.pkl"))
