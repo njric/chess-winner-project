@@ -25,8 +25,8 @@ def feed(path: str):
     # game_files = [x for x in ]
     agent = A2C()
 
-    for game_file in utils.list_pickles(path):
-        for idx, obs in enumerate(utils.from_disk(game_file)):
+    for game_file in list_pickles(path):
+        for idx, obs in enumerate(from_disk(game_file)):
             BUF.set(obs)
             if idx % CFG.batch_size == 0 and BUF.len() >= CFG.batch_size:
                 agent.learn()
@@ -77,7 +77,7 @@ def eval(agent_1, agent_2, n_eval=5):
     print(f"{eval_idx}: White {agent_1}: Wins {results[0].count(1)}, Draws {results[0].count(0)}, Losses {results[0].count(-1)} \n")
     print(f"{eval_idx}: Black {agent_2}: Wins {results[1].count(1)}, Draws {results[1].count(0)}, Losses {results[1].count(-1)} \n")
 
-    print(f"Since init: White: total wins {tot_win} & total draws {tot_draw}")
+    print(f"Since init: White: total wins {tot_win} & total draws {tot_draws}")
 
     agent_1.model.train()  # Set NN model back to training mode for agent 1
     return outcome
