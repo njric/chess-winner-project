@@ -34,7 +34,7 @@ def feed(path: str):
     # agent.save(path)
 
 
-def play():
+def play(learning = True):
     """
     Play chess using two agents.
     """
@@ -47,21 +47,25 @@ def play():
         epsilon = math.exp(epsilon_decay * n)  # -> implement in agent move
         env.play(render=True)
 
-        if n % 500 == 0 and n != 0:
-            eval('agt0')
+        if learning == False:
+            if n % 500 == 0 and n != 0:
+                eval('agt0')
 
     weight_saver('agt0.model', f"model_{eval_idx}")
 
 
-def eval(agent, n_eval=5):
+def eval(agent_1, agent_2, n_eval=5):
     # raise NotImplementedError
-    env = Environment((agent, StockFish()))
-    eval_idx +=1
-    agent.model.eval()  # Set NN model to evaluation mode.
-    results = []
+    env = Environment((agent_1, agent_2))
+    eval_idx += 1
+    agent_1.model.eval()  # Set NN model to evaluation mode.
+    results = {}
+
     for _ in range(n_eval):
-        env.play()
-        results.append(env.results)
+        env.play(render=True)
+        results[env.idx].append(env.results)
+        results[1 - env.idx].append(- env.results)
+
 
     wins = results.count(1)
     draws = results.count(0)
@@ -70,10 +74,12 @@ def eval(agent, n_eval=5):
     tot_win += wins
     tot_draws += draws
 
-    print(f"{eval_idx}: Wins {results.count(1)}, Draws {results.count(0)}, Losses {results.count(-1)} \n")
-    print(f"Since init: total wins {tot_win} & total draws {tot_draw}")
+    print(f"{eval_idx}: White {agent_1}: Wins {results[0].count(1)}, Draws {results[0].count(0)}, Losses {results[0].count(-1)} \n")
+    print(f"{eval_idx}: Black {agent_2}: Wins {results[1].count(1)}, Draws {results[1].count(0)}, Losses {results[1].count(-1)} \n")
 
-    agent.model.train()  # Set NN model back to training mode
+    print(f"Since init: White: total wins {tot_win} & total draws {tot_draw}")
+
+    agent_1.model.train()  # Set NN model back to training mode for agent 1
     return outcome
 
 
@@ -97,4 +103,7 @@ if __name__ == "__main__":
     #args = parse_arguments()
     #d = vars(args)['file'].split("/")[1]
     # load_pgn()
-    feed("")
+    # feed("")
+    agent_1 = Random()
+    agent_2 = Random()
+    eval(agent_1,agent_2)

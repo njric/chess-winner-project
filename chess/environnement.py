@@ -94,7 +94,7 @@ class Environment:
         self.env = chess_v5.env()
         self.env.reset()
         self.agents = agents
-        self.results = 0
+        self.results = ()
 
     def play(self, render=False):
         idx = 0
@@ -103,9 +103,9 @@ class Environment:
             new, rwd, done, info = self.env.last()
             if done:
                 if idx == 0:
-                    self.results = rwd
+                    self.results = (idx, rwd)
                 else:
-                    self.results = -rwd
+                    self.results = (idx, -rwd)
                 break
 
             action = self.agents[idx].move(observation=new, board=self.env.env.env.env.env.board)

@@ -6,7 +6,7 @@ import collections
 import random
 import subprocess
 
-import chess.engine
+import chess
 import numpy as np
 import torch
 
