@@ -13,8 +13,8 @@ import torch
 from network import A2CNet, DQN
 from config import CFG
 from buffer import BUF
-from utils import move_to_act
-
+from utils import *
+import os
 
 class Agent:
     def __init__(self):

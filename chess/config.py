@@ -20,6 +20,7 @@ class Configuration:
         self.entropy = 0.01
         self.buffer_size = 100000
         self.batch_size = 64
+        self.epsilon_decay = 0.01
         self.epsilon = None
         self.random_seed = None
         self.agent_type = None

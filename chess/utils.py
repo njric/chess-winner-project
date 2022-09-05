@@ -34,3 +34,14 @@ def move_to_act(move):
     x, y = chess_utils.square_to_coord(move.from_square)
     panel = chess_utils.get_move_plane(move)
     return (x * 8 + y) * 73 + panel
+
+def weight_saver(model, file_name):
+    dir = os.path.join(os.path.dirname(__file__), f"../weights/{file_name}.pt")
+    torch.save(model.net.state_dict(), dir)
+    return
+
+def weight_loader(model, file_name):
+    device = torch.device("cpu")
+    dir = os.path.join(os.path.dirname(__file__), f"../weights/{file_name}.pt")
+    model.load_state_dict(torch.load(dir, map_location=device))
+    return model
