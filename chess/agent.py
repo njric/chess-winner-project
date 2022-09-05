@@ -10,7 +10,7 @@ import chess.engine
 import numpy as np
 import torch
 
-from network import A2CNet
+from network import A2CNet, DQN
 from config import CFG
 from buffer import BUF
 from utils import move_to_act
@@ -153,6 +153,96 @@ class A2C(Agent):
         Save the agent's model to disk.
         """
         torch.save(self.net.state_dict(), path)
+
+    def load(self, path: str):
+        """
+        Load the agent's weights from disk.
+        """
+        dat = torch.load(path, map_location=torch.device("cpu"))
+        self.net.load_state_dict(dat)
+
+
+class DQNAgent(Agent):
+    """
+    DQN Agent.
+    Can do some offline learning with pickles
+    And learn through self play.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+        self.idx = 0
+        self.loss_tracking = []
+        self.net = DQN()
+        self.obs = collections.deque(maxlen=CFG.buffer_size)
+        self.opt = torch.optim.Adam(self.net.parameters(), lr=CFG.learning_rate)
+
+        self.tgt = DQN()
+        self.tgt.load_state_dict(self.net.state_dict())
+        self.tgt.eval()
+
+    def step(self):
+        """
+        Experience replay before feeding our data to the model.
+        """
+        # TODO Needs doing
+        pass
+
+    def move(self, obs, _):
+        """
+        Next action selection.
+        """
+        # TODO Remove when we get real masks
+        mask = np.array([random.randint(0, 1) for _ in range(4672)])
+        obs = torch.tensor(obs).float().unsqueeze(0)
+        _, pol = self.net(obs)
+        pol = pol.squeeze(0).detach().numpy() * mask
+        pol = pol / sum(pol)
+        return np.random.choice(range(len(pol)), p=pol)
+
+
+    def learn(self):
+        """
+        Trains the model.
+        """
+
+        self.idx += 1
+
+        old, act, rwd, new , terminal = BUF.get()
+
+        #Get "y_pred"
+        out = torch.gather(self.net(old), 1, act).squeeze(1)
+
+        #Get "target", added terminal in order to get the right exp when new = None
+        with torch.no_grad():
+            index = torch.argmax(self.tgt(new), 1).unsqueeze(1)
+            exp = rwd + (CFG.gamma * torch.gather(self.tgt(new), 1, index).squeeze(1) * terminal)
+
+        #Compute loss
+        loss = torch.square(exp - out)
+        self.loss_tracking.append(loss.sum().detach().item())
+
+        print(f'Iteration #{self.idx}: {loss.sum().detach().item()}')
+
+        #Backward prop
+        self.opt.zero_grad()
+        loss.sum().backward()
+        self.opt.step()
+
+        #Target network update
+        if self.idx % 50 == 0:
+            self.tgt.load_state_dict(self.net.state_dict())
+
+
+
+
+    def save(self, path: str):
+        """
+        Save the agent's model to disk.
+        """
+        torch.save(self.net.state_dict(), f"{path}saved_model.pt")
+        to_disk(self.loss_tracking, 'loss')
 
     def load(self, path: str):
         """
