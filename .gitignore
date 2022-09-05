@@ -44,3 +44,7 @@ raw_data/*
 pickle/*
 *Zone.Identifier
 *.DS_Store
+
+.direnv
+
+data/*

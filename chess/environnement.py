@@ -22,27 +22,29 @@ def load_pgn(datafile=None):
 
     count = 0
     print("-"*10, "Starting", "-"*10)
-    while (game := chess.pgn.read_game(pgn)) is not None: #while a game exist, set game variable
+    while (game := chess.pgn.read_game(pgn)) is not None:  # while a game exist, set game variable
 
-        #count games and save pickel at 500
+        # count games and save pickel at 500
         count += 1
         if count % 500 == 0:
             to_disk(DB)
             DB = []
 
-        #reset env at start
+        # reset env at start
         env.reset()
 
-        result = game.headers["Result"]  #get result from game in case nor readable by pettingzoo
+        # get result from game in case nor readable by pettingzoo
+        result = game.headers["Result"]
 
 #       game_list format = [agent, move, result]
 #       game_list ex = [0, Move.from_uci('g1f3'), None]
-        game_list = [[int(i % 2 == 1), move, None] for i, move in enumerate(game.mainline_moves())]
+        game_list = [[int(i % 2 == 1), move, None]
+                     for i, move in enumerate(game.mainline_moves())]
 
         if len(game_list) == 0:
             continue
 
-        game_list[-1][-1] = result #set last None of a gamelist as result
+        game_list[-1][-1] = result  # set last None of a gamelist as result
 
         for (agent, move, result) in game_list:
 
@@ -64,7 +66,7 @@ def load_pgn(datafile=None):
 
             if done:  # or ("legal_moves" in info):  # TODO -> check legal_moves necessity
                 # Set last move for losing agent
-                agent = (agent + 1 ) % 2
+                agent = (agent + 1) % 2
 
                 old = dat[agent]["obs"]
                 act = dat[agent]["act"]
@@ -76,8 +78,7 @@ def load_pgn(datafile=None):
 
                 break
 
-            move = chess_utils.mirror_move(move) if agent == 1 else move #mirror move for black
-            action = move_to_act(move)
+            action = move_to_act(move, mirror=(agent == 1))
             env.step(action)
 
             dat[agent]["obs"] = new
@@ -86,8 +87,10 @@ def load_pgn(datafile=None):
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", action="store", help="Set the preprocessing to val") #création d'un argument
-    return parser.parse_args() #lancement de argparse
+    parser.add_argument("-f", "--file", action="store",
+                        help="Set the preprocessing to val")  # création d'un argument
+    return parser.parse_args()  # lancement de argparse
+
 
 class Environment:
     def __init__(self, agents):
@@ -108,7 +111,8 @@ class Environment:
                     self.results = -rwd
                 break
 
-            action = self.agents[idx].move(observation=new, board=self.env.env.env.env.env.board)
+            action = self.agents[idx].move(
+                observation=new, board=self.env.env.env.env.env.board)
             self.env.step(action)
             idx = 1 - idx
             if render:

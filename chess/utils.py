@@ -10,7 +10,8 @@ from pettingzoo.classic.chess import chess_utils
 def to_disk(obs):
     # Save a batch of generated game data to a file
     pdt = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    dir = os.path.join(os.path.dirname(__file__), f"../data/{pdt}_databatch.pkl")
+    dir = os.path.join(os.path.dirname(__file__),
+                       f"../data/{pdt}_databatch.pkl")
     with open(dir, "wb") as file:
         pickle.dump(obs, file)
     print(f"Save to pickle @ {pdt}")
@@ -29,8 +30,9 @@ def from_disk(file):
         return pickle.load(f)
 
 
-def move_to_act(move):
+def move_to_act(move, mirror=False):
     # Return a pettingzoo-style action from a chess move
+    move = chess_utils.mirror_move(move) if mirror else move
     x, y = chess_utils.square_to_coord(move.from_square)
     panel = chess_utils.get_move_plane(move)
     return (x * 8 + y) * 73 + panel

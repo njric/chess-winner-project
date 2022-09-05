@@ -56,7 +56,7 @@ def play():
 def eval(agent, n_eval=5):
     # raise NotImplementedError
     env = Environment((agent, StockFish()))
-    eval_idx +=1
+    eval_idx += 1
     agent.model.eval()  # Set NN model to evaluation mode.
     results = []
     for _ in range(n_eval):
@@ -90,8 +90,10 @@ def baseline():
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", action="store", help="Set the preprocessing to val") #création d'un argument
-    return parser.parse_args() #lancement de argparse
+    parser.add_argument("-f", "--file", action="store",
+                        help="Set the preprocessing to val")  # création d'un argument
+    return parser.parse_args()  # lancement de argparse
+
 
 if __name__ == "__main__":
     #args = parse_arguments()
