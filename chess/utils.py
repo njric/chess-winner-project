@@ -34,13 +34,8 @@ def move_to_act(move):
     # Return a pettingzoo-style action from a chess move
     x, y = chess_utils.square_to_coord(move.from_square)
     panel = chess_utils.get_move_plane(move)
-<<<<<<< HEAD
-=======
 
->>>>>>> 9f4bc7f (test function done)
     return (x * 8 + y) * 73 + panel
-<<<<<<< HEAD
-=======
 
 
 def weight_saver(model, file_name):
@@ -55,3 +50,11 @@ def weight_loader(model, file_name):
     dir = os.path.join(os.path.dirname(__file__), f"../weights/{file_name}.pt")
     model.load_state_dict(torch.load(dir, map_location=device))
     return model
+
+def score(move: str, agent: int):  # -> score
+    if move == "1-0":
+        return 1
+    elif move == "0-1":
+        return -1
+    else:
+        return 0

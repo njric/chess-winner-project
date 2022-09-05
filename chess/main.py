@@ -4,19 +4,18 @@ import os
 
 from agent import Random, StockFish, A2C
 from environnement import Environment, load_pgn
-<<<<<<< HEAD
 import utils
 from buffer import BUF
 from config import CFG
 
 from typing import List
 
-=======
+
 from utils import *
 tot_win = 0
 tot_draw = 0
 eval_idx = 0
->>>>>>> 16b33af (eval function done)
+
 
 # TODO:
 # - Implement train from pkl
@@ -38,7 +37,7 @@ def feed(path: str):
             if idx % CFG.batch_size == 0 and BUF.len() >= CFG.batch_size:
                 agent.learn()
 
-    # agent.save(path)
+    weight_saver(agent.model, f"model_{eval_idx}")
 
 
 
@@ -94,7 +93,6 @@ def parse_arguments():
     return parser.parse_args() #lancement de argparse
 
 if __name__ == "__main__":
-    #args = parse_arguments()
-    #d = vars(args)['file'].split("/")[1]
-    # load_pgn()
-    feed("")
+    args = parse_arguments()
+    d = vars(args)['file'].split("/")[1]
+    load_pgn(d)

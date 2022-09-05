@@ -12,11 +12,11 @@ def load_pgn(datafile=None):
     dir = os.path.join(os.path.dirname(__file__))
     data_dir = os.path.join(os.path.dirname(dir), "raw_data")
     # pgn = open(f"{dir}/raw_data/2022-01.bare.[19999].pgn")
-<<<<<<< HEAD
+
     pgn = open(f"{data_dir}/CCRL-4040.[1440796].pgn", mode='rt')
-=======
+
     pgn = open(f"{data_dir}/{datafile}")
->>>>>>> 16b33af (eval function done)
+
 
     # Create a buffer to store board state / action by players
     dat = ({"obs": None, "act": None}, {"obs": None, "act": None})
@@ -56,6 +56,7 @@ def load_pgn(datafile=None):
                 rwd = chess_utils.result_to_int(result)
                 done = True
 
+
             if dat[agent]["obs"] is not None:
 
                 old = dat[agent]["obs"]
@@ -86,10 +87,6 @@ def load_pgn(datafile=None):
             dat[agent]["obs"] = new
             dat[agent]["act"] = action
 
-
-<<<<<<< HEAD
-=======
-# load_pgn()
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -132,5 +129,4 @@ class Environment:
 from agent import Random
 Environment((Random(), Random())).play(render=True)
 
->>>>>>> 16b33af (eval function done)
 load_pgn()
