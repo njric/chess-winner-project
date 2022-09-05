@@ -66,3 +66,48 @@ class A2CNet(nn.Module):
         y_pol = self.pol(y).double() # We need double precision for small probabilities.
         # torch.clamp(y_pol, min=10e-39, max=1)
         return y_val, y_pol.exp()
+
+class DQN(nn.Module):
+    """
+    DQN Model
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        net = [
+            nn.Conv2d(111, 512, kernel_size=3, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(inplace=True),
+        ]
+
+        for _ in range(CFG.convolution_layers - 3):
+            net += [
+                nn.Conv2d(512, 512, kernel_size=3, padding=1),
+                nn.BatchNorm2d(512),
+                nn.ReLU(inplace=True),
+            ]
+
+        net += [
+            nn.Conv2d(512, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.Flatten(start_dim=1),
+            nn.Linear(in_features=16384, out_features=8192),
+            nn.ReLU(inplace=True),
+        ]
+
+        self.net = nn.Sequential(*net)
+
+
+        self.linear = nn.Sequential(
+            nn.Linear(8192, 8192), nn.ReLU(inplace = True),
+            nn.Linear(8192, 4096), nn.ReLU(inplace = True),
+            nn.Linear(4096, 4672),
+            #nn.LogSoftmax(dim=-1),
+        )
+
+    def forward(self, X):
+        y = self.net(X)
+        y = self.linear(y)
+        return y

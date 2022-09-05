@@ -9,3 +9,4 @@ torch
 httplib2==0.15.0
 google-api-python-client==1.7.11
 gcloud
+google-cloud-storage

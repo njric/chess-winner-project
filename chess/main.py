@@ -4,7 +4,7 @@ import os
 
 from agent import Random, StockFish, A2C
 from environnement import Environment, load_pgn
-import utils
+from utils import *
 from buffer import BUF
 from config import CFG
 
@@ -34,7 +34,6 @@ def feed(path: str):
     # agent.save(path)
 
 
-
 def play():
     """
     Play chess using two agents.
@@ -54,23 +53,39 @@ def play():
     weight_saver('agt0.model', f"model_{eval_idx}")
 
 
-
 def eval(agent, n_eval=5):
     # raise NotImplementedError
     env = Environment((agent, StockFish()))
-
+    eval_idx +=1
     agent.model.eval()  # Set NN model to evaluation mode.
-
+    results = []
     for _ in range(n_eval):
         env.play()
+        results.append(env.results)
 
-    results = list('eval game outcomes') # -> white player reward
+    wins = results.count(1)
+    draws = results.count(0)
+    losses = results.count(-1)
+    outcome = (wins, draws, losses)
+    tot_win += wins
+    tot_draws += draws
+
     print(f"{eval_idx}: Wins {results.count(1)}, Draws {results.count(0)}, Losses {results.count(-1)} \n")
     print(f"Since init: total wins {tot_win} & total draws {tot_draw}")
 
     agent.model.train()  # Set NN model back to training mode
+    return outcome
 
 
+def baseline():
+
+    list_pickles = list_pickles()
+    for pickle in list_pickles:
+        data = from_disk(pickle)
+        print(data)
+        exit()
+
+    pass
 
 
 def parse_arguments():
