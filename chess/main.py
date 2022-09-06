@@ -108,4 +108,4 @@ if __name__ == "__main__":
     tot_win, tot_draw, tot_loss = 0, 0, 0
     agent = Random()
     agent2 = Random()
-    eval(agent, agent2)
+    eval(agent, agent2, 100)
