@@ -1,6 +1,7 @@
 import argparse
 import math
 import os
+from tkinter import E
 
 from agent import Random, StockFish, A2C
 from environnement import Environment, load_pgn
@@ -92,7 +93,6 @@ def baseline():
 
     pass
 
-
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", action="store",
@@ -102,7 +102,7 @@ def parse_arguments():
 
 if __name__ == "__main__":
 
-    agent = Random()
-    agent2 = Random()
+    agent = StockFish(epsilon_greed=0)
+    agent2 = StockFish(epsilon_greed=0)
 
-    eval(agent, agent2, n_eval=10)
+    eval(agent, agent2, n_eval=1, render=True)

@@ -13,7 +13,7 @@ import torch
 from network import A2CNet, DQN
 from config import CFG
 from buffer import BUF
-from utils import move_to_act
+from utils import move_to_act, to_disk
 
 
 class Agent:
@@ -26,14 +26,27 @@ class Agent:
     def feed(self, old, act, rwd, new):
         pass
 
+class Random(Agent):
+    """
+    Always returns a random move from the action_mask.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def move(self, observation, board):
+        if board.turn is False:
+            board = board.mirror()
+        return random.choice(np.flatnonzero(observation["action_mask"]))
 
 class StockFish(Agent):
     """
     Agent that uses the Stockfish chess engine.
     """
 
-    def __init__(self):
+    def __init__(self, epsilon_greed=0):
         super().__init__()
+        self.epsilon_greed = epsilon_greed
 
         SF_dir = (
             subprocess.run(["which", "stockfish"], stdout=subprocess.PIPE)
@@ -41,8 +54,9 @@ class StockFish(Agent):
             .strip("\n")
         )
         # If subprocess cannot find stockfish, move it to .direnv and switch to method :
-        # import os
-        # SF_dir = os.path.join(os.path.dirname(__file__), '../.direnv/stockfish')
+        import os
+        SF_dir = os.path.join(os.path.dirname(__file__), '../.direnv/stockfish')
+        # print(SF_dir)
 
         self.engine = chess.engine.SimpleEngine.popen_uci(SF_dir)
         self.limit = chess.engine.Limit(time=0.1)
@@ -60,26 +74,15 @@ class StockFish(Agent):
         if board.turn is False:
             board = board.mirror()
 
-        move = self.engine.engine.play(
-            board=board,
-            limit=chess.engine.Limit(time=None, depth=None),
-        )  # TODO Test Different Settings & Depths
-
-        # TODO USE MIRROR_MOVE FROM CHESS UTILS IF STOCKFISH IS BLACK
-        return move_to_act(move.move, mirror=zz)
-
-
-class Random(Agent):
-    """
-    Always returns a random move from the action_mask.
-    """
-
-    def __init__(self):
-        super().__init__()
-
-    def move(self, observation, board):
-        return random.choice(np.flatnonzero(observation["action_mask"]))
-
+#       TODO Test Different Settings & Depths
+        if random.random() >= self.epsilon_greed:
+            move = self.engine.play(
+                board=board,
+                limit=chess.engine.Limit(time=None, depth=None),
+            )
+            return move_to_act(move.move, mirror=False)
+        else:
+            return random.choice(np.flatnonzero(observation["action_mask"]))
 
 class BaselineAgent(Agent):
     """
