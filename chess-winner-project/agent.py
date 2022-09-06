@@ -3,6 +3,7 @@ Agent
 """
 
 import collections
+from json import load
 import random
 import subprocess
 
@@ -33,6 +34,7 @@ class StockFish(Agent):
     """
 
     def __init__(self):
+
         super().__init__()
 
         SF_dir = (
@@ -89,13 +91,40 @@ class BaselineAgent(Agent):
     def __init__(self):
         super().__init__()
         # TODO Mechanism to load move DB
-        self.DB = None
+        infile = os.path.join(os.path.dirname(__file__), f"../data/theone.pkl")
+        #pickle_file = list_pickles(infile)[0]
+        if os.path.getsize(infile) > 0:
+            file = open(infile, 'rb')
+            self.DB = pickle.load(file)
+            file.close()
+
+        # DB = {}
+        # for p in pickle_list:
+        #     if os.path.getsize(p) > 0:
+        #         file = open(p, 'rb')
+        #         temp = pickle.load(file)
+        #         file.close()
+        #         if DB == {}:
+        #             DB = temp
+        #         else:
+        #             for key in temp:
+        #                 if key in DB:
+        #                     for secondkey in temp[key]:
+        #                         if secondkey in DB[key]:
+        #                             DB[key][secondkey] = int(DB[key][secondkey]) + int(temp[key][secondkey])
+        #                         else:
+        #                             DB[key][secondkey] = temp[key][secondkey]
+        #                 else:
+        #                     DB[key] = temp[key]
 
     def move(self, observation, board):
         if (env := " ".join(board.fen().split(" ")[:4])) not in self.DB:
+
             return random.choice(np.flatnonzero(observation["action_mask"]))
-        prb = self.DB[env].values() / sum(self.DB[env].values())
-        return np.random.choice(self.DB[env].keys(), p=prb)
+        #print(self.DB[env])
+        val = self.DB[env].values()
+        prb = [x / sum(val) for x in val]
+        return np.random.choice(list(self.DB[env].keys()), p=prb)
 
 
 class A2C(Agent):

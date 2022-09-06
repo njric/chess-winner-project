@@ -2,8 +2,8 @@ import argparse
 import math
 import os
 
-from agent import Random, StockFish, A2C
 from agent import Agent
+from agent import Random, StockFish, A2C, BaselineAgent
 from environnement import Environment, load_pgn
 from utils import *
 from buffer import BUF
@@ -105,7 +105,7 @@ def parse_arguments():
 
 if __name__ == "__main__":
 
-    agent = Random()
+    agent = BaselineAgent()
     agent2 = Random()
 
-    eval(agent, agent2, n_eval=10)
+    eval(agent, agent2, n_eval=100)
