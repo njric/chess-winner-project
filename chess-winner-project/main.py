@@ -3,7 +3,7 @@ import math
 import os
 from tkinter import E
 
-from agent import Random, StockFish, A2C
+from agent import DQNAgent, Random, StockFish, A2C
 from environnement import Environment, load_pgn
 from utils import *
 from buffer import BUF
@@ -60,7 +60,7 @@ def eval(agent, agent2, n_eval=5, eval_idx=0, render=False):
     tot_win, tot_draws = 0, 0
     env = Environment((agent, agent2))
     eval_idx += 1
-    #agent.model.eval()   Set NN model to evaluation mode.
+    # agent.eval()   #Set NN model to evaluation mode.
     results = {0: [], 1: []}
 
     for _ in range(n_eval):
@@ -102,7 +102,11 @@ def parse_arguments():
 
 if __name__ == "__main__":
 
-    agent = StockFish(epsilon_greed=0)
-    agent2 = StockFish(epsilon_greed=0)
+    path = os.path.join(os.path.dirname(__file__), f"../weights")
 
-    eval(agent, agent2, n_eval=1, render=True)
+    agent = DQNAgent()
+    agent.load(f'{path}/saved_model.pt')
+
+    agent2 = StockFish(epsilon_greed=0.8)
+
+    eval(agent, agent2, n_eval=10, render=False)

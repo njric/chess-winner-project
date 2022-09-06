@@ -100,14 +100,12 @@ class Environment:
         self.results = 0
 
     def play(self, render=False):
-        if render:
-            print("NEW GAME STARTING")
-            print('\n')
         self.idx = 0
         # idx is the player who is currently moving
         for _ in self.env.agent_iter():
             new, rwd, done, info = self.env.last()
             if done:
+                self.env.render(), print('\n')
                 if self.idx == 0:
                     self.results = rwd
                 else:

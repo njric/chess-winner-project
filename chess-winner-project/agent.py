@@ -14,7 +14,7 @@ from network import A2CNet, DQN
 from config import CFG
 from buffer import BUF
 from utils import move_to_act, to_disk
-
+import pdb
 
 class Agent:
     def __init__(self):
@@ -59,12 +59,10 @@ class StockFish(Agent):
         # print(SF_dir)
 
         self.engine = chess.engine.SimpleEngine.popen_uci(SF_dir)
-        self.limit = chess.engine.Limit(time=0.1)
-        # TODO config stockfish options to optimize performance:
-        # print(self.engine.options["Hash"], self.engine.options["Threads"])
-        # self.engine.configure({"Skill Level": 1,
-        #                        "Threads": 8,
-        #                        "Hash": 1024})
+
+        self.engine.configure({"Skill Level": 1,
+                               "Threads": 8,
+                               "Hash": 1024})
 
     def stop_engine(self):
         self.engine.quit()
@@ -78,7 +76,7 @@ class StockFish(Agent):
         if random.random() >= self.epsilon_greed:
             move = self.engine.play(
                 board=board,
-                limit=chess.engine.Limit(time=None, depth=None),
+                limit=chess.engine.Limit(time=0.1, depth=None),
             )
             return move_to_act(move.move, mirror=False)
         else:
@@ -196,7 +194,7 @@ class DQNAgent(Agent):
         self.idx = 0
         self.loss_tracking = []
         self.net = DQN()
-        self.obs = collections.deque(maxlen=CFG.buffer_size)
+        self.observation = collections.deque(maxlen=CFG.buffer_size)
         self.opt = torch.optim.Adam(
             self.net.parameters(), lr=CFG.learning_rate)
 
@@ -211,17 +209,24 @@ class DQNAgent(Agent):
         # TODO Needs doing
         pass
 
-    def move(self, obs, _):
+    def move(self, observation, board):
         """
         Next action selection.
         """
         # TODO Remove when we get real masks
-        mask = np.array([random.randint(0, 1) for _ in range(4672)])
-        obs = torch.tensor(obs).float().unsqueeze(0)
-        _, pol = self.net(obs)
-        pol = pol.squeeze(0).detach().numpy() * mask
-        pol = pol / sum(pol)
-        return np.random.choice(range(len(pol)), p=pol)
+        # mask = np.array([random.randint(0, 1) for _ in range(4672)])
+
+        mask = observation["action_mask"]
+        # observation = torch.tensor(observation["observation"]).float().unsqueeze(0)
+        observation = torch.permute(torch.tensor(observation["observation"]).float(), (2, 0, 1)).unsqueeze(0)
+        # pdb.set_trace()
+        val = self.net(observation)
+        if torch.max(val) <= 0:
+            val = val.squeeze(0).detach().numpy() * mask
+            return np.argmin(lambda x: x**2 for x in val)
+
+        val = val.squeeze(0).detach().numpy() * mask
+        return np.argmax(val)
 
     def learn(self):
         """
