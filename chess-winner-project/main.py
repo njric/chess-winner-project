@@ -3,7 +3,7 @@ import math
 import os
 from tkinter import E
 
-from agent import DQNAgent, Random, StockFish, A2C
+from agent import BaselineAgent, DQNAgent, Random, StockFish, A2C
 from environnement import Environment, load_pgn
 from utils import *
 from buffer import BUF
@@ -105,8 +105,8 @@ if __name__ == "__main__":
     path = os.path.join(os.path.dirname(__file__), f"../weights")
 
     agent = DQNAgent()
-    agent.load(f'{path}/saved_model.pt')
+    agent.load(f'{path}/saved_model_2.pt')
 
-    agent2 = StockFish(epsilon_greed=0.8)
+    agent2 = BaselineAgent()
 
-    eval(agent, agent2, n_eval=10, render=False)
+    eval(agent, agent2, n_eval=100, render=False)

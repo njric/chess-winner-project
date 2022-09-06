@@ -16,6 +16,9 @@ from buffer import BUF
 from utils import move_to_act, to_disk
 import pdb
 
+import os
+import pickle
+
 class Agent:
     def __init__(self):
         pass
@@ -90,13 +93,22 @@ class BaselineAgent(Agent):
     def __init__(self):
         super().__init__()
         # TODO Mechanism to load move DB
-        self.DB = None
+        infile = os.path.join(os.path.dirname(__file__), f"../data/2022-09-05_17-09-00_databatch.pkl")
+        #pickle_file = list_pickles(infile)[0]
+        if os.path.getsize(infile) > 0:
+            file = open(infile, 'rb')
+            self.DB = pickle.load(file)
+            file.close()
 
     def move(self, observation, board):
         if (env := " ".join(board.fen().split(" ")[:4])) not in self.DB:
+
             return random.choice(np.flatnonzero(observation["action_mask"]))
-        prb = self.DB[env].values() / sum(self.DB[env].values())
-        return np.random.choice(self.DB[env].keys(), p=prb)
+        #print(self.DB[env])
+        val = self.DB[env].values()
+        prb = [x / sum(val) for x in val]
+        return np.random.choice(list(self.DB[env].keys()), p=prb)
+
 
 
 class A2C(Agent):
