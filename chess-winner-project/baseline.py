@@ -6,6 +6,8 @@ from main import parse_arguments
 
 import utils
 import os
+import pickle
+
 
 
 def load_baseline(datafile=None):
@@ -37,6 +39,7 @@ def load_baseline(datafile=None):
 
     utils.to_disk(DB)
     print(DB)
+
 
 
 if __name__ == "__main__":
