@@ -40,13 +40,13 @@ class StockFish(Agent):
             .stdout.decode("utf-8")
             .strip("\n")
         )
-        ## If subprocess cannot find stockfish, move it to .direnv and switch to method :
+        # If subprocess cannot find stockfish, move it to .direnv and switch to method :
         # import os
         # SF_dir = os.path.join(os.path.dirname(__file__), '../.direnv/stockfish')
 
         self.engine = chess.engine.SimpleEngine.popen_uci(SF_dir)
         self.limit = chess.engine.Limit(time=0.1)
-        ## TODO config stockfish options to optimize performance:
+        # TODO config stockfish options to optimize performance:
         # print(self.engine.options["Hash"], self.engine.options["Threads"])
         # self.engine.configure({"Skill Level": 1,
         #                        "Threads": 8,
@@ -65,7 +65,8 @@ class StockFish(Agent):
             limit=chess.engine.Limit(time=None, depth=None),
         )  # TODO Test Different Settings & Depths
 
-        return move_to_act(move.move)
+        # TODO USE MIRROR_MOVE FROM CHESS UTILS IF STOCKFISH IS BLACK
+        return move_to_act(move.move, mirror=zz)
 
 
 class Random(Agent):
@@ -78,6 +79,23 @@ class Random(Agent):
 
     def move(self, observation, board):
         return random.choice(np.flatnonzero(observation["action_mask"]))
+
+
+class BaselineAgent(Agent):
+    """
+    Always returns a random move from the action_mask.
+    """
+
+    def __init__(self):
+        super().__init__()
+        # TODO Mechanism to load move DB
+        self.DB = None
+
+    def move(self, observation, board):
+        if (env := " ".join(board.fen().split(" ")[:4])) not in self.DB:
+            return random.choice(np.flatnonzero(observation["action_mask"]))
+        prb = self.DB[env].values() / sum(self.DB[env].values())
+        return np.random.choice(self.DB[env].keys(), p=prb)
 
 
 class A2C(Agent):
@@ -93,7 +111,8 @@ class A2C(Agent):
         self.idx = 0
         self.net = A2CNet()
         self.obs = collections.deque(maxlen=CFG.buffer_size)
-        self.opt = torch.optim.Adam(self.net.parameters(), lr=CFG.learning_rate)
+        self.opt = torch.optim.Adam(
+            self.net.parameters(), lr=CFG.learning_rate)
 
     def step(self):
         """
@@ -114,7 +133,6 @@ class A2C(Agent):
         pol = pol / sum(pol)
         return np.random.choice(range(len(pol)), p=pol)
 
-
     def learn(self):
         """
         Trains the model.
@@ -131,11 +149,11 @@ class A2C(Agent):
 
         val_loss = 0.5 * torch.square(adv)
         pol_loss = -(adv * y_pred_pol)
-        loss = (pol_loss + val_loss).mean() # + 1e-6 * entropy
+        loss = (pol_loss + val_loss).mean()  # + 1e-6 * entropy
 
         self.idx += 1
 
-        #print(y_pred_pol)
+        # print(y_pred_pol)
         tp = pol[0].detach()
         tps, _ = torch.sort(tp, descending=True)
         print(tp.max(), tp.mean(), tp.min())
@@ -176,7 +194,8 @@ class DQNAgent(Agent):
         self.loss_tracking = []
         self.net = DQN()
         self.obs = collections.deque(maxlen=CFG.buffer_size)
-        self.opt = torch.optim.Adam(self.net.parameters(), lr=CFG.learning_rate)
+        self.opt = torch.optim.Adam(
+            self.net.parameters(), lr=CFG.learning_rate)
 
         self.tgt = DQN()
         self.tgt.load_state_dict(self.net.state_dict())
@@ -201,7 +220,6 @@ class DQNAgent(Agent):
         pol = pol / sum(pol)
         return np.random.choice(range(len(pol)), p=pol)
 
-
     def learn(self):
         """
         Trains the model.
@@ -209,33 +227,31 @@ class DQNAgent(Agent):
 
         self.idx += 1
 
-        old, act, rwd, new , terminal = BUF.get()
+        old, act, rwd, new, terminal = BUF.get()
 
-        #Get "y_pred"
+        # Get "y_pred"
         out = torch.gather(self.net(old), 1, act).squeeze(1)
 
-        #Get "target", added terminal in order to get the right exp when new = None
+        # Get "target", added terminal in order to get the right exp when new = None
         with torch.no_grad():
             index = torch.argmax(self.tgt(new), 1).unsqueeze(1)
-            exp = rwd + (CFG.gamma * torch.gather(self.tgt(new), 1, index).squeeze(1) * terminal)
+            exp = rwd + (CFG.gamma * torch.gather(self.tgt(new),
+                         1, index).squeeze(1) * terminal)
 
-        #Compute loss
+        # Compute loss
         loss = torch.square(exp - out)
         self.loss_tracking.append(loss.sum().detach().item())
 
         print(f'Iteration #{self.idx}: {loss.sum().detach().item()}')
 
-        #Backward prop
+        # Backward prop
         self.opt.zero_grad()
         loss.sum().backward()
         self.opt.step()
 
-        #Target network update
+        # Target network update
         if self.idx % 50 == 0:
             self.tgt.load_state_dict(self.net.state_dict())
-
-
-
 
     def save(self, path: str):
         """

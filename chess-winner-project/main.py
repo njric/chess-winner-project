@@ -37,38 +37,38 @@ def feed(path: str):
     # agent.save(path)
 
 
-def play():
+def play(agent, agent2, evaluate=False):
     """
     Play chess using two agents.
     """
     # raise NotImplementedError
-    env = Environment(('agt0', 'agt1'))
+    env = Environment((agent, agent2))
 
-    'agt0'.model = weight_loader('agt0'.model, 'model_#')
+    agent.model = weight_loader(agent.model, 'model_#')
 
     for n in range(10000):
         CFG.epsilon = math.exp(epsilon_decay * n)  # -> implement in agent move
         env.play(render=True)
 
-        if n % 500 == 0 and n != 0:
-            eval('agt0')
 
-    weight_saver('agt0.model', f"model_{eval_idx}")
+        if evaluate:
+            eval(agent, agent2)
+
+    weight_saver(agent.model, f"model_{eval_idx}")
 
 
-def eval(agent, agent2, n_eval=5, eval_idx=0):
+def eval(agent, agent2, n_eval=5, eval_idx=0, render=False):
     # raise NotImplementedError
-    tot_win = 0
-    tot_draws = 0
+    tot_win, tot_draws = 0, 0
     env = Environment((agent, agent2))
     eval_idx += 1
     #agent.model.eval()   Set NN model to evaluation mode.
     results = {0: [], 1: []}
 
     for _ in range(n_eval):
-        env.play(render=True)
-        results[env.idx].append(env.results)
-        results[1 - env.idx].append(- env.results)
+        env.play(render)
+        results[0].append(env.results)
+        results[1].append(- env.results)
 
     wins = results[0].count(1)
     draws = results[0].count(0)
@@ -77,9 +77,9 @@ def eval(agent, agent2, n_eval=5, eval_idx=0):
     tot_win =  tot_win + wins
     tot_draws =  tot_draws + draws
 
-    print(f"{eval_idx}: White wins{results[0].count(1)}, Draws {results[0].count(0)}, Losses {results[0].count(-1)} \n")
-    print(f"{eval_idx}: Black wins{results[1].count(1)}, Draws {results[1].count(0)}, Losses {results[1].count(-1)} \n")
-    print(f"Since init: total wins {tot_win} & total draws {tot_draw}")
+    print(f"{eval_idx}: White: Wins: {results[0].count(1)}, Draws {results[0].count(0)}, Losses {results[0].count(-1)} \n")
+    print(f"{eval_idx}: Black: Wins: {results[1].count(1)}, Draws {results[1].count(0)}, Losses {results[1].count(-1)} \n")
+    print(f"Since init: total wins {tot_win} & total draws {tot_draws}")
 
     #agent.model.train()  # Set NN model back to training mode
     return outcome
@@ -98,14 +98,14 @@ def baseline():
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", action="store", help="Set the preprocessing to val") #création d'un argument
-    return parser.parse_args() #lancement de argparse
+    parser.add_argument("-f", "--file", action="store",
+                        help="Set the preprocessing to val")  # création d'un argument
+    return parser.parse_args()  # lancement de argparse
+
 
 if __name__ == "__main__":
-    #args = parse_arguments()
-    #d = vars(args)['file'].split("/")[1]
-    # load_pgn()
-    tot_win, tot_draw, tot_loss = 0, 0, 0
+
     agent = Random()
     agent2 = Random()
-    eval(agent, agent2, 100)
+
+    eval(agent, agent2, n_eval=10)
