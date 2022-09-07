@@ -103,9 +103,12 @@ class BaselineAgent(Agent):
             file.close()
 
     def move(self, observation, board):
+
+        mask = observation["action_mask"]
+
         if (env := " ".join(board.fen().split(" ")[:4])) not in self.DB:
 
-            return random.choice(np.flatnonzero(observation["action_mask"]))
+            return random.choice(np.flatnonzero(mask))
         #print(self.DB[env])
         val = self.DB[env].values()
         prb = [x / sum(val) for x in val]
@@ -218,6 +221,9 @@ class DQNAgent(Agent):
         self.tgt.load_state_dict(self.net.state_dict())
         self.tgt.eval()
 
+        self.baseline = BaselineAgent()
+
+
     def step(self):
         """
         Experience replay before feeding our data to the model.
@@ -232,13 +238,14 @@ class DQNAgent(Agent):
 
         mask = observation["action_mask"]
 
-        observation = torch.permute(torch.tensor(observation["observation"]).float(), (2, 0, 1)).unsqueeze(0)
+        obs = torch.permute(torch.tensor(observation["observation"]).float(), (2, 0, 1)).unsqueeze(0)
 
-        val = self.net(observation)
+        val = self.net(obs)
         val = val.squeeze(0).detach().numpy() * mask
 
         if np.amax(val) <= 0:
-            return np.argmax([x-1000 if (x == 0) else x for x in val])
+            return self.baseline.move(observation, board)
+            # return np.argmax([x-1000 if (x == 0) else x for x in val])
 
         return np.argmax(val)
 

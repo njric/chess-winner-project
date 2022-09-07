@@ -102,14 +102,13 @@ def parse_arguments():
 
 if __name__ == "__main__":
 
-    CFG.init("", baseline_greedy = False, move_threshold = 10, epsilon_greed = 0.0)
+    CFG.init("", baseline_greedy = True, move_threshold = 10, epsilon_greed = 0.0)
 
     path = os.path.join(os.path.dirname(__file__), f"../weights")
 
-    # agent = DQNAgent()
-    # agent.load(f'{path}/saved_model_3.pt')
+    DQNAgent().load(f'{path}/saved_model_3.pt')
 
-    agent = ImprovedBaselineAgent()
-    agent2 = Random()
+    agent = Random()
+    agent2 = BaselineAgent()
 
     eval(agent, agent2, n_eval=100, render=False)
