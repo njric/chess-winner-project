@@ -29,6 +29,7 @@ class Agent:
     def feed(self, old, act, rwd, new):
         pass
 
+
 class Random(Agent):
     """
     Always returns a random move from the action_mask.
@@ -41,6 +42,7 @@ class Random(Agent):
         if board.turn is False:
             board = board.mirror()
         return random.choice(np.flatnonzero(observation["action_mask"]))
+
 
 class StockFish(Agent):
     """
@@ -83,6 +85,7 @@ class StockFish(Agent):
             return move_to_act(move.move, mirror=False)
         else:
             return self.random_agent.move(observation, board)
+
 
 class BaselineAgent(Agent):
     """
@@ -306,3 +309,30 @@ class ImprovedDQN(Agent):
             return self.baseline_agent.move(observation, board)
 
         return self.dqn_agent.move(observation, board)
+
+
+class ImprovedBaselineAgent(Agent):
+    """
+    Returns proba most played move if known, else return a random move from the action_mask.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.dqnagent = DQNAgent()
+        # TODO Mechanism to load move DB
+        infile = os.path.join(os.path.dirname(__file__), f"../data/2022-09-07_11-16-07_databatch.pkl")
+        #pickle_file = list_pickles(infile)[0]
+        if os.path.getsize(infile) > 0:
+            file = open(infile, 'rb')
+            self.DB = pickle.load(file)
+            file.close()
+
+    def move(self, observation, board):
+        if (env := " ".join(board.fen().split(" ")[:4])) not in self.DB:
+
+            return self.dqnagent.move(observation, board)
+        #print(self.DB[env])
+        val = self.DB[env].values()
+        prb = [x / sum(val) for x in val]
+
+        return np.random.choice(list(self.DB[env].keys()), p=prb)

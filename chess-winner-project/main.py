@@ -3,7 +3,7 @@ import math
 import os
 from tkinter import E
 
-from agent import BaselineAgent, DQNAgent, ImprovedDQN, Random, StockFish, A2C
+from agent import BaselineAgent, DQNAgent, ImprovedBaselineAgent, ImprovedDQN, Random, StockFish, A2C
 from environnement import Environment, load_pgn
 from utils import *
 from buffer import BUF
@@ -102,14 +102,14 @@ def parse_arguments():
 
 if __name__ == "__main__":
 
-    CFG.init("", baseline_greedy = False, move_threshold = 5, epsilon_greed = 0)
+    CFG.init("", baseline_greedy = False, move_threshold = 10, epsilon_greed = 0.0)
 
     path = os.path.join(os.path.dirname(__file__), f"../weights")
 
     # agent = DQNAgent()
     # agent.load(f'{path}/saved_model_3.pt')
 
-    agent = ImprovedDQN()
-    agent2 = BaselineAgent()
+    agent = ImprovedBaselineAgent()
+    agent2 = Random()
 
     eval(agent, agent2, n_eval=100, render=False)
