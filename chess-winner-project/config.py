@@ -25,9 +25,16 @@ class Configuration:
         self.agent_type = None
         self.convolution_layers = 12
 
+        self.baseline_greed = False
+        self.move_threshold = 5
+
     def init(self, agt_type, **kwargs):
         """
         User-defined configuration init. Mandatory to properly set all configuration parameters.
+
+        Agents params:
+        baseline_greed = False
+        move_threshold = 5
         """
 
         # Mandatory arguments go here. In our case it is useless.

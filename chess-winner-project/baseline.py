@@ -6,7 +6,15 @@ from main import parse_arguments
 
 import utils
 import os
+import sys
 
+
+def sizeof_fmt(num, suffix="B"):
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}Yi{suffix}"
 
 def load_baseline(datafile=None):
 
@@ -19,8 +27,10 @@ def load_baseline(datafile=None):
     while (game := chess.pgn.read_game(pgn)) is not None:  # while a game exist, set game variable
 
         count += 1
-        if (count := count + 1) % 100 == 0:
-            print(count)
+        if (count := count + 1) % 5000 == 0:
+            utils.to_disk(DB, "baseline")
+            size = sys.getsizeof(DB)
+            print(f'sizeof_fmt: {sizeof_fmt(size)} // size: {size} // len: {len(DB)}')
 
         board = chess.Board()
 
@@ -35,7 +45,7 @@ def load_baseline(datafile=None):
 
             board.push(move)
 
-    utils.to_disk(DB)
+    utils.to_disk(DB, "baseline")
     print(DB)
 
 

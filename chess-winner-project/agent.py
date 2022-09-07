@@ -87,13 +87,13 @@ class StockFish(Agent):
 
 class BaselineAgent(Agent):
     """
-    Always returns a random move from the action_mask.
+    Returns proba most played move if known, else return a random move from the action_mask.
     """
 
     def __init__(self):
         super().__init__()
         # TODO Mechanism to load move DB
-        infile = os.path.join(os.path.dirname(__file__), f"../data/2022-09-05_17-09-00_databatch.pkl")
+        infile = os.path.join(os.path.dirname(__file__), f"../data/baseline_databatch.pkl")
         #pickle_file = list_pickles(infile)[0]
         if os.path.getsize(infile) > 0:
             file = open(infile, 'rb')
@@ -107,8 +107,10 @@ class BaselineAgent(Agent):
         #print(self.DB[env])
         val = self.DB[env].values()
         prb = [x / sum(val) for x in val]
-        return np.random.choice(list(self.DB[env].keys()), p=prb)
 
+        if CFG.baseline_greed:
+            return np.argmax(val)
+        return np.random.choice(list(self.DB[env].keys()), p=prb)
 
 
 class A2C(Agent):
@@ -286,3 +288,26 @@ class DQNAgent(Agent):
         """
         dat = torch.load(path, map_location=torch.device("cpu"))
         self.net.load_state_dict(dat)
+
+
+class ImprovedDQN(Agent):
+    """
+    Improved DQN Agent.
+    Start with Baseline moves and then switch to DQN
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.moves_count = 0
+        self.baseline_agent = BaselineAgent()
+        self.dqn_agent = DQNAgent()
+
+    def move(self, observation, board):
+
+        while self.moves_count <= CFG.move_threshold:
+            self.moves_count += 1
+            print(f'move: {self.moves_count} - agent: Baseline')
+            return self.baseline_agent.move(observation, board)
+
+        print('DQN AGENT')
+        return self.dqn_agent.move(observation, board)
