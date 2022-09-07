@@ -27,6 +27,7 @@ class Configuration:
 
         self.baseline_greed = False
         self.move_threshold = 5
+        self.epsilon_greed = 0
 
     def init(self, agt_type, **kwargs):
         """
@@ -35,6 +36,7 @@ class Configuration:
         Agents params:
         baseline_greed = False
         move_threshold = 5
+        epsilon_greed = 0
         """
 
         # Mandatory arguments go here. In our case it is useless.

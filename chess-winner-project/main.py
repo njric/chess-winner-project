@@ -26,8 +26,8 @@ def feed(path: str):
     # game_files = [x for x in ]
     agent = A2C()
 
-    for game_file in utils.list_pickles(path):
-        for idx, obs in enumerate(utils.from_disk(game_file)):
+    for game_file in list_pickles(path):
+        for idx, obs in enumerate(from_disk(game_file)):
             BUF.set(obs)
             if idx % CFG.batch_size == 0 and BUF.len() >= CFG.batch_size:
                 agent.learn()
@@ -102,14 +102,14 @@ def parse_arguments():
 
 if __name__ == "__main__":
 
-    CFG.init("", baseline_greedy = True)
+    CFG.init("", baseline_greedy = False, move_threshold = 5, epsilon_greed = 0)
 
     path = os.path.join(os.path.dirname(__file__), f"../weights")
 
-    agent = DQNAgent()
-    agent.load(f'{path}/saved_model_3.pt')
+    # agent = DQNAgent()
+    # agent.load(f'{path}/saved_model_3.pt')
 
-    agent = Random()
+    agent = ImprovedDQN()
     agent2 = BaselineAgent()
 
     eval(agent, agent2, n_eval=100, render=False)

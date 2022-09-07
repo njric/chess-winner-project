@@ -47,19 +47,19 @@ class StockFish(Agent):
     Agent that uses the Stockfish chess engine.
     """
 
-    def __init__(self, epsilon_greed=0):
+    def __init__(self):
         super().__init__()
-        self.epsilon_greed = epsilon_greed
+        self.random_agent = Random()
 
         SF_dir = (
             subprocess.run(["which", "stockfish"], stdout=subprocess.PIPE)
             .stdout.decode("utf-8")
             .strip("\n")
         )
+
         # If subprocess cannot find stockfish, move it to .direnv and switch to method :
         import os
         SF_dir = os.path.join(os.path.dirname(__file__), '../.direnv/stockfish')
-        # print(SF_dir)
 
         self.engine = chess.engine.SimpleEngine.popen_uci(SF_dir)
 
@@ -75,15 +75,14 @@ class StockFish(Agent):
         if board.turn is False:
             board = board.mirror()
 
-#       TODO Test Different Settings & Depths
-        if random.random() >= self.epsilon_greed:
+        if random.random() >= CFG.epsilon_greed:
             move = self.engine.play(
                 board=board,
-                limit=chess.engine.Limit(time=0.1, depth=None),
+                limit=chess.engine.Limit(time=0.01, depth=None),
             )
             return move_to_act(move.move, mirror=False)
         else:
-            return random.choice(np.flatnonzero(observation["action_mask"]))
+            return self.random_agent.move(observation, board)
 
 class BaselineAgent(Agent):
     """
@@ -93,7 +92,7 @@ class BaselineAgent(Agent):
     def __init__(self):
         super().__init__()
         # TODO Mechanism to load move DB
-        infile = os.path.join(os.path.dirname(__file__), f"../data/baseline_databatch.pkl")
+        infile = os.path.join(os.path.dirname(__file__), f"../data/2022-09-07_11-16-07_databatch.pkl")
         #pickle_file = list_pickles(infile)[0]
         if os.path.getsize(infile) > 0:
             file = open(infile, 'rb')
@@ -227,19 +226,17 @@ class DQNAgent(Agent):
         """
         Next action selection.
         """
-        # TODO Remove when we get real masks
-        # mask = np.array([random.randint(0, 1) for _ in range(4672)])
 
         mask = observation["action_mask"]
-        # observation = torch.tensor(observation["observation"]).float().unsqueeze(0)
-        observation = torch.permute(torch.tensor(observation["observation"]).float(), (2, 0, 1)).unsqueeze(0)
-        # pdb.set_trace()
-        val = self.net(observation)
-        if torch.max(val) <= 0:
-            val = val.squeeze(0).detach().numpy() * mask
-            return np.argmin(lambda x: x**2 for x in val)
 
+        observation = torch.permute(torch.tensor(observation["observation"]).float(), (2, 0, 1)).unsqueeze(0)
+
+        val = self.net(observation)
         val = val.squeeze(0).detach().numpy() * mask
+
+        if np.amax(val) <= 0:
+            return np.argmax([x-1000 if (x == 0) else x for x in val])
+
         return np.argmax(val)
 
     def learn(self):
@@ -304,10 +301,8 @@ class ImprovedDQN(Agent):
 
     def move(self, observation, board):
 
-        while self.moves_count <= CFG.move_threshold:
+        while self.moves_count < CFG.move_threshold:
             self.moves_count += 1
-            print(f'move: {self.moves_count} - agent: Baseline')
             return self.baseline_agent.move(observation, board)
 
-        print('DQN AGENT')
         return self.dqn_agent.move(observation, board)

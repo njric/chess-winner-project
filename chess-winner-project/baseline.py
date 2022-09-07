@@ -8,7 +8,6 @@ import utils
 import os
 import sys
 
-
 def sizeof_fmt(num, suffix="B"):
     for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
         if abs(num) < 1024.0:
@@ -51,5 +50,5 @@ def load_baseline(datafile=None):
 
 if __name__ == "__main__":
     args = parse_arguments()
-    d = vars(args)['file'].split("/")[1]
+    d = vars(args)['file'].split("/")[-1]
     load_baseline(d)
