@@ -105,15 +105,15 @@ class Environment:
         for _ in self.env.agent_iter():
             new, rwd, done, info = self.env.last()
             if done:
-                # self.env.render()
+                self.env.render()
                 if self.idx == 0:
                     self.results = rwd
-                    # print(f'White: {rwd} // Black: {-rwd}')
-                    # print('\n')
+                    print(f'White: {rwd} // Black: {-rwd}')
+                    print('\n')
                 else:
                     self.results = -rwd
-                    # print(f'White: {-rwd} // Black: {rwd}')
-                    # print('\n')
+                    print(f'White: {-rwd} // Black: {rwd}')
+                    print('\n')
                 break
 
             action = self.agents[self.idx].move(observation=new, board=self.env.env.env.env.env.board)

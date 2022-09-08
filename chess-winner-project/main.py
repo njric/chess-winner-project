@@ -107,7 +107,7 @@ if __name__ == "__main__":
     path = os.path.join(os.path.dirname(__file__), f"../weights")
 
     agent = DQNAgent()
-    DQNAgent().load(f'{path}/saved_model_09_08_AM.pt')
+    DQNAgent().load(f'{path}/saved_model.pt')
 
     agent2 = BaselineAgent()
 
