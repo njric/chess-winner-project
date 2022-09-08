@@ -26,8 +26,8 @@ def load_baseline(datafile=None):
     while (game := chess.pgn.read_game(pgn)) is not None:  # while a game exist, set game variable
 
         count += 1
-        if (count := count + 1) % 5000 == 0:
-            utils.to_disk(DB, "baseline")
+        if (count := count + 1) % 10000 == 0:
+            utils.to_disk(DB)
             size = sys.getsizeof(DB)
             print(f'sizeof_fmt: {sizeof_fmt(size)} // size: {size} // len: {len(DB)}')
 

@@ -96,6 +96,7 @@ class BaselineAgent(Agent):
         super().__init__()
         # TODO Mechanism to load move DB
         infile = os.path.join(os.path.dirname(__file__), f"../data/2022-09-07_11-16-07_databatch.pkl")
+        # infile = os.path.join(os.path.dirname(__file__), f"../data/database_databatch.pkl")
         #pickle_file = list_pickles(infile)[0]
         if os.path.getsize(infile) > 0:
             file = open(infile, 'rb')

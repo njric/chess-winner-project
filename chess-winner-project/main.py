@@ -106,9 +106,9 @@ if __name__ == "__main__":
 
     path = os.path.join(os.path.dirname(__file__), f"../weights")
 
-    DQNAgent().load(f'{path}/saved_model_3.pt')
+    agent = DQNAgent()
+    DQNAgent().load(f'{path}/saved_model_09_08_AM.pt')
 
-    agent = Random()
     agent2 = BaselineAgent()
 
     eval(agent, agent2, n_eval=100, render=False)
