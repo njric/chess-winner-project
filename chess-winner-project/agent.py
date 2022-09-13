@@ -206,6 +206,7 @@ class DQNAgent(Agent):
     DQN Agent.
     Can do some offline learning with pickles
     And learn through self play.
+    Play baseline if all weights are negatives
     """
 
     def __init__(self):
@@ -246,7 +247,6 @@ class DQNAgent(Agent):
 
         if np.amax(val) <= 0:
             return self.baseline.move(observation, board)
-            # return np.argmax([x-1000 if (x == 0) else x for x in val])
 
         return np.argmax(val)
 
@@ -290,12 +290,13 @@ class DQNAgent(Agent):
         torch.save(self.net.state_dict(), f"{path}saved_model.pt")
         to_disk(self.loss_tracking, 'loss')
 
-    def load(self, path: str):
+    def load(self):
         """
         Load the agent's weights from disk.
         """
-        dat = torch.load(path, map_location=torch.device("cpu"))
+        dat = torch.load(CFG.weight_path, map_location=torch.device("cpu"))
         self.net.load_state_dict(dat)
+        print(f"load of {CFG.weight_path} done")
 
 
 class ImprovedDQN(Agent):
@@ -308,7 +309,9 @@ class ImprovedDQN(Agent):
         super().__init__()
         self.moves_count = 0
         self.baseline_agent = BaselineAgent()
+        # self.path = os.path.join(os.path.dirname(__file__), f"../weights")
         self.dqn_agent = DQNAgent()
+        self.dqn_agent.load()
 
     def move(self, observation, board):
 

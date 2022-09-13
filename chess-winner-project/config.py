@@ -5,10 +5,13 @@ This module defines a singleton-type configuration class that can be used all ac
 """
 
 import random
+import os
 
 class Configuration:
     """
-    This configuration class is extremely flexible due to a two-step init process. We only instanciate a single instance of it (at the bottom if this file) so that all modules can import this singleton at load time. The second initialization (which happens in main.py) allows the user to input custom parameters of the config class at execution time.
+    This configuration class is extremely flexible due to a two-step init process.
+    We only instanciate a single instance of it (at the bottom if this file) so that all modules can import this singleton at load time.
+    The second initialization (which happens in main.py) allows the user to input custom parameters of the config class at execution time.
     """
 
     def __init__(self):
@@ -28,6 +31,11 @@ class Configuration:
         self.baseline_greed = False
         self.move_threshold = 5
         self.epsilon_greed = 0
+
+        self.path = os.path.join(os.path.dirname(__file__), f"../weights")
+        self.weight_name = "saved_model_09_12_AM.pt"
+        self.weight_path = f'{self.path}/{self.weight_name}'
+
 
     def init(self, agt_type, **kwargs):
         """

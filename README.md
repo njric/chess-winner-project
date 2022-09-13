@@ -1,3 +1,14 @@
+# Info
+
+This is an implementation of a DQN Network to play chess vs:
+- Baseline
+- Itself
+- Stockfish
+
+Pickels are made from PGN games.
+Buckets are made from pickels.
+DQN train on pickles.
+
 # General
 
 ## Set up env:
@@ -5,7 +16,10 @@
 `make install`
 
 ## Gitignore:
-Your data in raw_data/
+Your data in
+- raw_data/
+- data/
+- weights/
 Your search notebooks in research/
 
 ## Data

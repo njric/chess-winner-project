@@ -12,12 +12,6 @@ from config import CFG
 from typing import List
 
 
-# TODO:
-# - Implement train from pkl
-# - Implement stats
-# - Implement eval
-# - Implement CFG
-
 def feed(path: str):
     """
     Train a single agent using pickles game files
@@ -33,7 +27,6 @@ def feed(path: str):
                 agent.learn()
 
     # agent.save(path)
-
 
 def play(agent, agent2, evaluate=False):
     """
@@ -54,13 +47,14 @@ def play(agent, agent2, evaluate=False):
 
     weight_saver(agent.model, f"model_{eval_idx}")
 
-
 def eval(agent, agent2, n_eval=5, eval_idx=0, render=False):
-    # raise NotImplementedError
+    '''
+    Eval mode: Play between 2 agents without backprob
+    '''
+
     tot_win, tot_draws = 0, 0
     env = Environment((agent, agent2))
     eval_idx += 1
-    # agent.eval()   #Set NN model to evaluation mode.
     results = {0: [], 1: []}
 
     for _ in range(n_eval):
@@ -82,17 +76,6 @@ def eval(agent, agent2, n_eval=5, eval_idx=0, render=False):
     #agent.model.train()  # Set NN model back to training mode
     return outcome
 
-
-def baseline():
-
-    list_pickles = list_pickles()
-    for pickle in list_pickles:
-        data = from_disk(pickle)
-        print(data)
-        exit()
-
-    pass
-
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", action="store",
@@ -102,12 +85,9 @@ def parse_arguments():
 
 if __name__ == "__main__":
 
-    CFG.init("", baseline_greedy = True, move_threshold = 10, epsilon_greed = 0.0)
-
-    path = os.path.join(os.path.dirname(__file__), f"../weights")
+    CFG.init("", baseline_greedy = True, move_threshold = 10, epsilon_greed = 0.0, weight_name = "saved_model_09_12_AM.pt")
 
     agent = DQNAgent()
-    DQNAgent().load(f'{path}/saved_model.pt')
 
     agent2 = BaselineAgent()
 
