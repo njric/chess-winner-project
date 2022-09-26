@@ -7,7 +7,7 @@ from agent import BaselineAgent, DQNAgent, ImprovedBaselineAgent, ImprovedDQN, R
 from environnement import Environment, load_pgn
 from utils import *
 from buffer import BUF
-from config import CFG
+from config import CFG, Configuration
 
 from typing import List
 
@@ -85,9 +85,10 @@ def parse_arguments():
 
 if __name__ == "__main__":
 
-    CFG.init("", baseline_greedy = True, move_threshold = 10, epsilon_greed = 0.0, weight_name = "saved_model_09_12_AM.pt")
+    CFG.init("", baseline_greed = False, move_threshold = 10, epsilon = 0.0, weight_name = "saved_model_09_12_AM.pt")
 
     agent = DQNAgent()
+    agent.load()
 
     agent2 = BaselineAgent()
 

@@ -297,6 +297,7 @@ class DQNAgent(Agent):
         dat = torch.load(CFG.weight_path, map_location=torch.device("cpu"))
         self.net.load_state_dict(dat)
         print(f"load of {CFG.weight_path} done")
+        print(f'{CFG.move_threshold}'), print(f'{CFG.baseline_greed}')
 
 
 class ImprovedDQN(Agent):

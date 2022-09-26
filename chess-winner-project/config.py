@@ -29,11 +29,11 @@ class Configuration:
         self.convolution_layers = 12
 
         self.baseline_greed = False
-        self.move_threshold = 5
+        self.move_threshold = 0
         self.epsilon_greed = 0
 
+        self.weight_name = ''
         self.path = os.path.join(os.path.dirname(__file__), f"../weights")
-        self.weight_name = "saved_model_09_12_AM.pt"
         self.weight_path = f'{self.path}/{self.weight_name}'
 
 
@@ -44,7 +44,7 @@ class Configuration:
         Agents params:
         baseline_greed = False
         move_threshold = 5
-        epsilon_greed = 0
+        epsilon_greed = 0.05
         """
 
         # Mandatory arguments go here. In our case it is useless.
@@ -52,10 +52,16 @@ class Configuration:
 
         # We set default values for arguments we have to define
         self.random_seed = random.randint(0, 1000)
+        self.baseline_greed = False
         self.epsilon = 0.05
+        self.move_threshold = 5
+        self.weight_name = "saved_model.pt"
 
-        # However, these arguments can be overriden by passing them as keyword arguments in the init method. Hence, passing for instance epsilon=0.1 as a kwarg to the init method will override the default value we just defined.
+        # However, these arguments can be overriden by passing them as keyword arguments in the init method.
+        # Hence, passing for instance epsilon=0.1 as a kwarg to the init method will override the default value we just defined.
         self.__dict__.update(kwargs)
+        self.path = os.path.join(os.path.dirname(__file__), f"../weights")
+        self.weight_path = f'{self.path}/{self.weight_name}'
 
         # Once all values are properly set, use them.
         random.seed(self.random_seed)
